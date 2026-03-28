@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw 个人 AI 指挥中心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        header { text-align: center; margin-bottom: 3rem; }
+        header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        header p { color: #94a3b8; font-size: 1.1rem; }
+        .status-bar { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
+        .status-item { background: #1e293b; padding: 0.75rem 1.5rem; border-radius: 50px; display: flex; align-items: center; gap: 0.5rem; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .status-dot.green { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .card { background: #1e293b; border-radius: 1rem; padding: 1.5rem; border: 1px solid #334155; }
+        .card h2 { font-size: 1.2rem; margin-bottom: 1rem; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem; }
+        .card h2 .icon { font-size: 1.5rem; }
+        .card ul { list-style: none; color: #94a3b8; line-height: 1.8; }
+        .card li { padding: 0.25rem 0; }
+        .phase-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .phase-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #334155; }
+        .phase-item:last-child { border-bottom: none; }
+        .tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+        .tag { background: #334155; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.85rem; }
+        .tag.success { background: #166534; color: #86efac; }
+        .tag.warning { background: #854d0e; color: #fde047; }
+        .tag.info { background: #1e40af; color: #93c5fd; }
+        footer { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #334155; color: #64748b; }
+        .time { color: #667eea; }
+        .workflow { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+        .workflow-step { background: #334155; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.85rem; }
+        .workflow-arrow { color: #667eea; font-size: 1.2rem; }
+        .profit { color: #fde047; }
+        .loss { color: #f87171; }
+        .neutral { color: #86efac; }
+        .task-item { background: #0f172a; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid #334155; }
+        .task-item:last-child { margin-bottom: 0; }
+        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
+        .task-name { font-size: 0.95rem; color: #e2e8f0; }
+        .task-status { font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 50px; }
+        .task-status.todo { background: #854d0e; color: #fde047; }
+        .task-status.doing { background: #1e40af; color: #93c5fd; }
+        .task-status.done { background: #166534; color: #86efac; }
+        .task-meta { font-size: 0.8rem; color: #64748b; }
+        .scan-result { background: #0f172a; border-radius: 0.5rem; padding: 1rem; margin-top: 0.5rem; border: 1px solid #334155; }
+        .scan-result .stock-name { font-size: 1.1rem; color: #f8fafc; margin-bottom: 0.5rem; }
+        .price-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.3rem; }
+        .price-item { display: flex; flex-direction: column; }
+        .price-label { font-size: 0.75rem; color: #64748b; }
+        .price-value { font-size: 1.1rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 OpenClaw 个人 AI 指挥中心</h1>
+            <p>stock-assistant 项目控制台</p>
+        </header>
+        <div class="status-bar">
+            <div class="status-item"><div class="status-dot green"></div><span>网关 运行中</span></div>
+            <div class="status-item"><div class="status-dot green"></div><span>主控 Agent 活跃</span></div>
+            <div class="status-item"><div class="status-dot green"></div><span>飞书 已配置</span></div>
+            <div class="status-item"><div class="status-dot green"></div><span>备份 已验证</span></div>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h2><span class="icon">📊</span> 系统状态</h2>
+                <ul>
+                    <li>版本: <span style="color:#667eea">2026.3.24</span></li>
+                    <li>Node: v24.14.0</li>
+                    <li>模型: MiniMax-M2.7</li>
+                    <li>网关端口: 18789</li>
+                </ul>
+                <div class="tags"><span class="tag success">✅ 运行正常</span></div>
+            </div>
+            <div class="card">
+                <h2><span class="icon">🎯</span> 项目阶段</h2>
+                <div class="phase-list">
+                    <div class="phase-item"><span>✅</span><span>阶段0-2: 环境/备份/目录/Agent</span></div>
+                    <div class="phase-item"><span>✅</span><span>阶段3-5: 文档/任务流/门户</span></div>
+                    <div class="phase-item"><span>✅</span><span>阶段4: Agent协作链</span></div>
+                    <div class="phase-item"><span>🔄</span><span>阶段5: 工作流验证</span></div>
+                </div>
+            </div>
+            <div class="card">
+                <h2><span class="icon">🤖</span> Agent 状态</h2>
+                <ul id="agent-list"><li>加载中...</li></ul>
+            </div>
+            <div class="card">
+                <h2><span class="icon">📈</span> 持仓状况</h2>
+                <div id="scan-result" class="scan-result" style="display:none"></div>
+                <ul id="portfolio-list"><li>加载中...</li></ul>
+                <div class="tags"><span class="tag" id="portfolio-tag">持仓: 加载中...</span></div>
+            </div>
+            <div class="card">
+                <h2><span class="icon">📋</span> 任务池</h2>
+                <div id="task-list"><div class="task-item"><div class="task-header"><span class="task-name">加载中...</span></div></div></div>
+            </div>
+            <div class="card">
+                <h2><span class="icon">⏰</span> 定时任务</h2>
+                <ul>
+                    <li>每日备份: ✅ 03:00</li>
+                    <li>开盘扫描: ✅ 09:00</li>
+                    <li>收盘复盘: ✅ 16:00</li>
+                    <li>成长复盘: ✅ 22:00</li>
+                    <li>持仓更新: ✅ 每小时</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h2><span class="icon">💾</span> 备份健康</h2>
+                <ul>
+                    <li>最新备份: <span id="backup-time">加载中...</span></li>
+                    <li>备份位置: /backups/</li>
+                </ul>
+                <div class="tags"><span class="tag success" id="backup-status">✅ 已验证</span></div>
+            </div>
+            <div class="card">
+                <h2><span class="icon">🔄</span> 工作流说明</h2>
+                <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:0.5rem;">定时任务触发时，多个 Agent 协作流程：</p>
+                <div class="workflow">
+                    <span class="workflow-step">定时触发</span>
+                    <span class="workflow-arrow">→</span>
+                    <span class="workflow-step">主控 Agent</span>
+                    <span class="workflow-arrow">→</span>
+                    <span class="workflow-step">执行 Agent</span>
+                    <span class="workflow-arrow">→</span>
+                    <span class="workflow-step">验收 Agent</span>
+                    <span class="workflow-arrow">→</span>
+                    <span class="workflow-step">通知用户</span>
+                </div>
+                <ul style="margin-top:0.5rem; color:#94a3b8; line-height:1.8;">
+                    <li>执行 Agent: 获取数据、生成报告</li>
+                    <li>验收 Agent: 检查数据完整性</li>
+                    <li>主控 Agent: 汇总结果、发送通知</li>
+                </ul>
+            </div>
+        </div>
+        <footer>
+            <p>最后更新: <span class="time" id="last-update">2026-03-26 09:36 GMT+8</span></p>
+            <p>OpenClaw 个人 AI 指挥中心 | stock-assistant</p>
+        </footer>
+    </div>
+    <script>
+        var agentNames = {
+            'main': '主控 Agent',
+            'stock-main': '前台总控',
+            'stock-research': '研究 Agent',
+            'stock-exec': '执行 Agent',
+            'stock-review': '验收 Agent',
+            'stock-learn': '学习复盘'
+        };
+
+        fetch('./status/system.json').then(r => r.json()).then(function(d) {
+            var agents = [
+                {en:'main', zh:'主控 Agent', status:'活跃'},
+                {en:'stock-main', zh:'前台总控', status:'就绪'},
+                {en:'stock-research', zh:'研究 Agent', status:'就绪'},
+                {en:'stock-exec', zh:'执行 Agent', status:'就绪'},
+                {en:'stock-review', zh:'验收 Agent', status:'就绪'},
+                {en:'stock-learn', zh:'学习复盘', status:'就绪'}
+            ];
+            document.getElementById('agent-list').innerHTML = agents.map(function(a) {
+                return '<li>' + a.zh + ': ' + (a.status === '活跃' ? '✅ 活跃' : '✅ 就绪') + '</li>';
+            }).join('');
+
+            var bt = d.backup && d.backup.last && d.backup.last.time;
+            if (bt) {
+                var date = new Date(bt.replace('T',' ').replace(/-/g,'/'));
+                document.getElementById('backup-time').textContent = date.toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
+            }
+
+            // 更新时间
+            if (d.lastUpdated) {
+                var ud = new Date(d.lastUpdated);
+                document.getElementById('last-update').textContent = ud.toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
+            }
+        }).catch(function() {});
+
+        fetch('./status/portfolio.json').then(r => r.json()).then(function(d) {
+            var holdings = d.holdings || [];
+            var list = document.getElementById('portfolio-list');
+            var tag = document.getElementById('portfolio-tag');
+            var scanDiv = document.getElementById('scan-result');
+            if (holdings.length > 0) {
+                tag.textContent = '持仓 ' + holdings.length + ' 只';
+                tag.className = 'tag success';
+                list.innerHTML = '';
+                holdings.forEach(function(h) {
+                    var profit = h.profit_pct || 0;
+                    var change = h.change_pct || 0;
+                    var signP = profit >= 0 ? '+' : '';
+                    var signC = change >= 0 ? '+' : '';
+                    var pClass = profit > 0 ? 'neutral' : (profit < 0 ? 'loss' : '');
+                    var cClass = change > 0 ? 'neutral' : (change < 0 ? 'loss' : '');
+                    scanDiv.style.display = 'block';
+                    scanDiv.innerHTML =
+                        '<div class="stock-name">' + (h.name||'') + '（' + (h.code||'') + '）</div>' +
+                        '<div class="price-row">' +
+                        '<div class="price-item"><span class="price-label">现价</span><span class="price-value">' + (h.price||'-') + '元</span></div>' +
+                        '<div class="price-item"><span class="price-label">今日涨幅</span><span class="price-value ' + cClass + '">' + signC + change + '%</span></div>' +
+                        '<div class="price-item"><span class="price-label">持仓成本</span><span class="price-value">' + (h.cost||'-') + '元</span></div>' +
+                        '<div class="price-item"><span class="price-label">浮盈亏</span><span class="price-value ' + pClass + '">' + signP + profit + '%</span></div>' +
+                        '</div>';
+                });
+            } else {
+                list.innerHTML = '<li>暂无持仓</li>';
+            }
+        }).catch(function() {
+            document.getElementById('portfolio-list').innerHTML = '<li>加载失败</li>';
+        });
+
+        fetch('./status/tasks.json').then(r => r.json()).then(function(d) {
+            var pools = [
+                {key:'doing', label:'进行中', cls:'doing'},
+                {key:'todo', label:'待办', cls:'todo'},
+                {key:'done', label:'已完成', cls:'done'}
+            ];
+            var html = '';
+            pools.forEach(function(p) {
+                var pool = d[p.key] || [];
+                pool.forEach(function(t) {
+                    html += '<div class="task-item">';
+                    html += '<div class="task-header"><span class="task-name">' + (t.name||'') + '</span>';
+                    html += '<span class="task-status ' + p.cls + '">' + p.label + '</span></div>';
+                    html += '<div class="task-meta">' + (t.date||'') + ' | 参与: ' + (t.workers||'') + '</div>';
+                    if (t.result) html += '<div class="task-meta">' + t.result + '</div>';
+                    html += '</div>';
+                });
+            });
+            document.getElementById('task-list').innerHTML = html || '<div class="task-item"><span class="task-name">暂无任务</span></div>';
+        }).catch(function() {});
+
+        fetch('./status/system.json').then(r => r.json()).then(function(d) {
+            if (d.lastUpdated) {
+                var ud = new Date(d.lastUpdated);
+                document.getElementById('last-update').textContent = ud.toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
+            }
+        }).catch(function() {});
+    </script>
+</body>
+</html>

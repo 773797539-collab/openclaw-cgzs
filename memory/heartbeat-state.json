@@ -1,0 +1,16 @@
+{
+  "lastChecks": {
+    "stop_loss": "2026-03-26T19:10",
+    "process_inbox": "2026-03-26T19:10"
+  },
+  "stop_loss": {
+    "stock": "605365",
+    "price": 17.26,
+    "cost": 20.655,
+    "loss_pct": -16.4,
+    "stop_line": -15,
+    "triggered": true
+  },
+  "lastCheck": "2026-03-27T00:10:00+08:00",
+  "stopLossAlert": "605365 triggered again - user decided to hold"
+}

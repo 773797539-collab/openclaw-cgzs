@@ -1,0 +1,25 @@
+{
+  "date": "2026-03-27",
+  "updated_by": "auto_analysis",
+  "market_analysis": {
+    "overall": "强势上涨",
+    "main_sectors": ["锂电池", "机器人概念", "新能源汽车"],
+    "secondary_sectors": ["医疗器械", "低空经济", "AI算力", "光伏"]
+  },
+  "sector_details": [
+    {"name": "锂电池", "count": 13, "heat": "🔥🔥🔥", "note": "RSI>70，KDJ高位，今日强势"},
+    {"name": "机器人概念", "count": 9, "heat": "🔥🔥", "note": "板块热度较高"},
+    {"name": "新能源汽车", "count": 8, "heat": "🔥🔥", "note": "随锂电池联动"},
+    {"name": "医疗器械", "count": 7, "heat": "🔥🔥", "note": "板块轮动机会"},
+    {"name": "低空经济", "count": 6, "heat": "🔥", "note": "题材持续中"},
+    {"name": "AI算力", "count": 5, "heat": "🔥", "note": "题材持续中"},
+    {"name": "光伏", "count": 5, "heat": "🔥", "note": "超跌反弹"},
+    {"name": "互联金融", "count": 5, "heat": "🔥", "note": "轮动机会"}
+  ],
+  "stock_picks": {
+    "锂电池": ["SH600110", "SZ000893"],
+    "机器人概念": ["SH600835", "SZ000651"],
+    "医疗器械": ["SH601607", "SH600196"]
+  },
+  "strategy": "等锂电池板块RSI回到40-60区间再介入，追高风险大"
+}
