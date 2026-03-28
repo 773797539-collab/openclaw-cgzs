@@ -135,13 +135,19 @@ def main():
             tasks.append({"id": task_id, "name": name, "content": content, "complexity": complexity})
             workers = "stock-main（通过dispatcher派发，dispatchedBy=stock-main硬编码）"
             result = "派发中"
-            # v4: 直接派发（dispatcher.py的DISPATCHER_ID=stock-main硬编码，dispatchedBy始终=stock-main）
             ok, msg = dispatch_direct(name, content, complexity)
             if ok:
                 print(f"✅ [stock-main] {msg}")
+                # 更新队列状态为 dispatched
+                queue = load_queue()
+                for item in queue:
+                    if item["id"] == task_id:
+                        item["status"] = "dispatched"
+                        item["dispatchedAt"] = datetime.now().isoformat()
+                        break
+                save_queue(queue)
             else:
-                print(f"⚠️ 派发失败，队列备选: {msg}")
-                enqueue_for_stock_main(name, content, complexity, task_id)
+                print(f"⚠️ 派发失败: {msg}")
         else:
             workers = "stock-main（直接处理）"
             result = "主控处理中"
