@@ -11,13 +11,11 @@
 
 **队列文件**：`/home/admin/openclaw/workspace/stock-assistant/tasks/pending_stock_main.json`
 
-**处理流程**（同步执行，不等待结果）：
-1. 检查队列文件是否有 status=pending_dispatch 的任务
-2. 对每条 pending 任务：
-   - 读取 name 和 content
-   - 调用 `python3 /home/admin/openclaw/workspace/stock-assistant/scripts/dispatcher.py --dispatch "{name}" "{content}"`
-   - 将 status 改为 "dispatched"，记录 dispatchedAt 和 sessionKey="agent:main:subagent:stock-main"（注意：subagent 由 main 在 HEARTBEAT turn 内 spawn，parent=main）
-3. 保存队列
+**处理流程**（当收到消息 "process inbox" 时立即执行）：
+```
+exec(command="python3 /home/admin/openclaw/workspace/stock-assistant/scripts/queue_processor.py")
+```
+该命令读取 pending_stock_main.json，对每条 pending 任务调用 dispatcher.py 派发，然后更新队列状态为 dispatched。
 
 **重要**：dispatcher.py 的 dispatchedBy 参数由其内部读取环境变量或配置文件获取，当前为 "stock-main"。
 - stock-* subagents 由 main 在 HEARTBEAT turn 中 spawn，subagent 的 agentId=stock-*，不是 main

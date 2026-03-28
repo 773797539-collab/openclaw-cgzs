@@ -17,8 +17,10 @@
     "content": "# 立达信持仓分析测试\n\n请分析立达信(605365)的当前持仓状态和技术信号，用于验证 sessions_send 链路。\n",
     "complexity": "complex",
     "enqueuedAt": "2026-03-29T05:27:08+08:00",
-    "status": "pending_dispatch",
+    "status": "dispatched",
     "dispatchedBy": "stock-main",
-    "sessionKey": "agent:stock-main:main"
+    "sessionKey": "agent:stock-main:main",
+    "dispatchedAt": "2026-03-29T05:52:33.915365",
+    "dispatchResult": "Workflow: WORKFLOW-20260329-DBA66C\n  research: stock-research (dispatchedBy=stock-main)\n  exec: stock-exec (dispatchedBy=stock-main)\n  review: stock-review (dispatchedBy=stock-main)\n  learn: stock-lea"
   }
 ]
