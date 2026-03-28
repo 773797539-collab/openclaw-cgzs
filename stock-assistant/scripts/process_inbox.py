@@ -61,10 +61,13 @@ def save_pending(pending):
         json.dump(pending, f, ensure_ascii=False, indent=2)
 
 def load_queue():
-    if os.path.exists(QUEUE_FILE):
-        with open(QUEUE_FILE) as f:
-            return json.load(f)
-    return []
+    if not os.path.exists(QUEUE_FILE):
+        return []
+    with open(QUEUE_FILE) as f:
+        content = f.read().strip()
+        if not content:
+            return []
+        return json.loads(content)
 
 def save_queue(queue):
     with open(QUEUE_FILE, "w") as f:
