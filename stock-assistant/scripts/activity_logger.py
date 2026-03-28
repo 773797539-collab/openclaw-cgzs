@@ -1,121 +1,245 @@
 #!/usr/bin/env python3
 """
-activity_logger.py - 从 git log 自动提取今日操作，追加到 tasks.json
-只记录有实质内容的 commit，自动去重
+activity_logger.py - 活动记录（已重构：通知降噪）
+
+重构原则：
+- commit 只做内部留痕，不直接逐条推送
+- 多个 commit 汇总成 1 条摘要
+- 只有"主结果/真失败/真阻塞/待审批"才推送
+- HEARTBEAT 类纯心跳不推送
+
+推送规则：
+- 聚合时间窗：1小时（只推送1小时内的汇总）
+- 单次推送阈值：>=3条commit 或 包含真失败/真阻塞
+- 抑制规则：
+  * HEARTBEAT_OK / 心跳 / health check → 不推送
+  * docs/ / chore: / merge: → 不推送（静默留痕）
+  * fix/feat/add/implement + 无失败 → 汇总推送
+  * 真失败 / 真阻塞 / 待审批 → 立即推送
+- 超过20条自动合并为摘要
 """
-import json, subprocess, os
-from datetime import datetime
+import time, os, subprocess
+from datetime import datetime, timedelta
+from threading import Lock
 
 WORKSPACE = "/home/admin/openclaw/workspace"
-TASKS_FILE = f"{WORKSPACE}/portal/status/tasks.json"
-GIT_LOG_CACHE = f"{WORKSPACE}/data/.activity_cache"
+LOG_FILE = os.path.join(WORKSPACE, "logs", "activity.log")
+BATCH_WINDOW_SECONDS = 3600  # 1小时聚合窗口
+NOTIFY_THRESHOLD = 3  # 少于3条不推送（除非有失败/阻塞）
+MAX_BATCH = 20  # 超过20条强制摘要
 
-# 只记录这些前缀的 commit（实质性操作）
-COMMIT_PREFIXES = (
-    "fix", "feat", "add", "new", "build", "create",
-    "implement", "setup", "config", "init", "上线",
-    "修复", "新增", "搭建", "建立", "实现"
-)
+# Mutex for thread safety
+_lock = Lock()
 
-# 跳过这些关键词（琐碎维护）
-SKIP_KEYWORDS = (
-    "typo", "style:", "refactor:", "cleanup", "clean:", "lint",
-    "Merge", "merge", "chore:", "docs:", "ci:"
-)
+# In-memory buffer
+_commit_buffer = []  # list of {time, type, msg, sha, category}
+_last_notify = 0  # timestamp of last notification
 
-def get_today_commits():
-    today = datetime.now().strftime("%Y-%m-%d")
-    try:
-        result = subprocess.run(
-            ["git", "log", "--oneline", f"--since={today} 00:00", "--no-merges", "--all"],
-            cwd=WORKSPACE, capture_output=True, text=True, timeout=10
-        )
-        return result.stdout.strip().split('\n') if result.stdout.strip() else []
-    except:
-        return []
+# Categories that are NOISE (never push, just log internally)
+NOISE_CATEGORIES = {
+    'heartbeat', '心跳', 'health check', 'status update',
+    'heartbeat_ok', 'hearthbeat', 'Hearthbeat',
+}
 
-def load_tasks():
-    if os.path.exists(TASKS_FILE):
-        with open(TASKS_FILE) as f:
-            return json.load(f)
-    return {"doing": [], "todo": [], "done": [], "blocked": [], "lastUpdated": ""}
+# Categories that are SILENT (don't push, don't even log as activity)
+SILENT_CATEGORIES = {
+    'docs', 'chore', 'merge', 'style', 'refactor', 'typo', 'cleanup',
+}
 
-def save_tasks(tasks):
-    tasks["lastUpdated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
-    with open(TASKS_FILE, "w") as f:
-        json.dump(tasks, f, ensure_ascii=False, indent=2)
+# Commit types that are MEANINGFUL (always potentially push-worthy)
+MEANINGFUL_TYPES = {
+    'fix', 'feat', 'add', 'implement', 'new', 'create', '建立',
+    '新增', '实现', '修复', '建立', '创建',
+}
 
-def load_cache():
-    if os.path.exists(GIT_LOG_CACHE):
-        with open(GIT_LOG_CACHE) as f:
-            return set(json.load(f))
-    return set()
+# Commit types that are BLOCKING/FAILING (always push immediately)
+ALERT_TYPES = {
+    'fail', 'error', 'block', 'broken', 'crash', 'blocked',
+    '失败', '错误', '阻塞', '崩溃',
+}
 
-def save_cache(hashes):
-    os.makedirs(os.path.dirname(GIT_LOG_CACHE), exist_ok=True)
-    with open(GIT_LOG_CACHE, "w") as f:
-        json.dump(list(hashes), f)
 
-def is_meaningful(msg):
-    """判断是否是有实质内容的 commit"""
+def _classify_commit(msg: str) -> str:
+    """分类 commit，返回 category name"""
     msg_lower = msg.lower()
-    # 跳过琐碎的
-    for kw in SKIP_KEYWORDS:
-        if kw.lower() in msg_lower:
-            return False
-    # 必须以有意义的前缀开头
-    return any(msg.startswith(p) for p in COMMIT_PREFIXES)
+    if any(k in msg_lower for k in NOISE_CATEGORIES):
+        return 'NOISE'
+    if any(k in msg_lower for k in SILENT_CATEGORIES):
+        return 'SILENT'
+    if any(k in msg_lower for k in ALERT_TYPES):
+        return 'ALERT'
+    if any(k in msg_lower for k in MEANINGFUL_TYPES):
+        return 'MEANINGFUL'
+    return 'ROUTINE'
 
-def commit_to_task(line):
-    """把 git commit 信息转成任务格式"""
-    parts = line.split(' ', 1)
-    if len(parts) < 2:
-        return None
-    h, msg = parts[0], parts[1].strip()
-    if not is_meaningful(msg):
-        return None
-    return {
-        "name": msg,
-        "date": datetime.now().strftime("%Y-%m-%d"),
-        "workers": "主控 Agent",
-        "desc": f"Git: {h[:8]}",
-        "result": "已完成",
-        "type": "commit"
+
+def _should_push() -> bool:
+    """判断是否应该推送"""
+    if not _commit_buffer:
+        return False
+    now = time.time()
+    # 检查是否超时（超过1小时强制推送一次摘要）
+    if now - _last_notify > BATCH_WINDOW_SECONDS:
+        return True
+    # 检查是否有 ALERT
+    if any(c['category'] == 'ALERT' for c in _commit_buffer):
+        return True
+    # 超过最大批次
+    if len(_commit_buffer) >= MAX_BATCH:
+        return True
+    # 超过阈值且有一定间隔
+    if len(_commit_buffer) >= NOTIFY_THRESHOLD and now - _last_notify >= 60:
+        return True
+    return False
+
+
+def _format_summary() -> str:
+    """格式化推送消息"""
+    noise = [c for c in _commit_buffer if c['category'] == 'NOISE']
+    silent = [c for c in _commit_buffer if c['category'] == 'SILENT']
+    meaningful = [c for c in _commit_buffer if c['category'] == 'MEANINGFUL']
+    alerts = [c for c in _commit_buffer if c['category'] == 'ALERT']
+    routine = [c for c in _commit_buffer if c['category'] == 'ROUTINE']
+
+    total = len(_commit_buffer)
+    ts = datetime.now().strftime("%H:%M")
+
+    lines = [f"📊 Activity Summary [{ts}] ({total}条)"]
+
+    if alerts:
+        lines.append(f"🚨 重要: {len(alerts)}条")
+        for c in alerts[:3]:
+            lines.append(f"  • {c['msg'][:50]}")
+        if len(alerts) > 3:
+            lines.append(f"  ...还有{len(alerts)-3}条")
+
+    if meaningful:
+        lines.append(f"✅ 产出: {len(meaningful)}条")
+        for c in meaningful[:5]:
+            lines.append(f"  • {c['msg'][:50]}")
+        if len(meaningful) > 5:
+            lines.append(f"  ...还有{len(meaningful)-5}条")
+
+    if routine:
+        lines.append(f"📝 例行: {len(routine)}条")
+
+    if noise or silent:
+        hidden = len(noise) + len(silent)
+        lines.append(f"(已过滤{hidden}条心跳/杂项)")
+
+    return "\n".join(lines)
+
+
+def log_commit(sha: str, msg: str):
+    """记录一个 commit"""
+    category = _classify_commit(msg)
+    entry = {
+        'time': time.time(),
+        'type': category,
+        'msg': msg,
+        'sha': sha[:8],
+        'category': category,
     }
 
-def main():
-    commits = get_today_commits()
-    if not commits:
-        return
+    # Always log to file
+    with _lock:
+        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+        with open(LOG_FILE, 'a') as f:
+            f.write(f"{datetime.now().isoformat()} [{category}] {sha[:8]} {msg}\n")
 
-    cache = load_cache()
-    tasks = load_tasks()
+        # Only buffer non-SILENT entries
+        if category != 'SILENT':
+            _commit_buffer.append(entry)
+        else:
+            # SILENT: just log to file, don't buffer
+            pass
 
-    # 已有 commit hash 集合（用于去重）
-    existing_hashes = set()
-    for lst in [tasks.get("done",[]), tasks.get("todo",[]), tasks.get("doing",[])]:
-        for t in lst:
-            desc = t.get("desc","")
-            if desc.startswith("Git: "):
-                existing_hashes.add(desc[5:])
+    # Check if we should push
+    if _should_push():
+        _do_notify()
 
-    new_count = 0
-    for line in commits:
-        h = line.split(' ', 1)[0] if ' ' in line else ''
-        if h in cache or h in existing_hashes:
-            continue
-        task = commit_to_task(line)
-        if task:
-            tasks["done"].insert(0, task)
-            new_count += 1
-            cache.add(h)
 
-    if new_count > 0:
-        save_tasks(tasks)
-        save_cache(cache)
-        print(f"✅ 新增 {new_count} 条任务记录")
+def _do_notify():
+    """执行推送"""
+    global _last_notify
+    with _lock:
+        if not _commit_buffer:
+            return
+        msg = _format_summary()
+        _commit_buffer.clear()
+        _last_notify = time.time()
+
+    _notify(msg)
+
+
+def _notify(msg: str):
+    """实际发送通知"""
+    try:
+        import urllib.request, json
+        config_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'alert_config.json')
+        if os.path.exists(config_path):
+            with open(config_path) as f:
+                config = json.load(f)
+            feishu_url = config.get('feishu_webhook') or os.environ.get('FEISHU_WEBHOOK')
+            if feishu_url:
+                req = urllib.request.Request(feishu_url,
+                    data=json.dumps({"msg_type": "text", "content": {"text": msg}}).encode(),
+                    headers={"Content-Type": "application/json"})
+                urllib.request.urlopen(req, timeout=10)
+                return
+
+        # Telegram fallback
+        try:
+            import telegram
+            from ..config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+            bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
+            bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=msg)
+        except Exception:
+            pass
+    except Exception:
+        pass
+
+
+def flush():
+    """强制推送所有缓冲消息"""
+    with _lock:
+        if _commit_buffer:
+            msg = _format_summary()
+            _commit_buffer.clear()
+            _last_notify = time.time()
+    _notify(msg)
+
+
+def run_monitor(interval: int = 30):
+    """定期检查 commit 并记录（后台运行）"""
+    known_commits = set()
+    log_path = os.path.join(WORKSPACE, '.git', 'logs', 'HEAD')
+    if os.path.exists(log_path):
+        r = subprocess.run(['git', 'log', '--format=%H %s', '-n', '50'],
+                         cwd=WORKSPACE, capture_output=True, text=True)
+        for line in r.stdout.strip().split('\n'):
+            if line:
+                parts = line.split(' ', 1)
+                if len(parts) == 2:
+                    known_commits.add(parts[0])
+
+    while True:
+        r = subprocess.run(['git', 'log', '--format=%H %s', '-n', '10'],
+                          cwd=WORKSPACE, capture_output=True, text=True)
+        for line in reversed(r.stdout.strip().split('\n')):
+            if line:
+                parts = line.split(' ', 1)
+                if len(parts) == 2 and parts[0] not in known_commits:
+                    sha, msg = parts
+                    known_commits.add(sha)
+                    log_commit(sha, msg)
+        time.sleep(interval)
+
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == '--monitor':
+        run_monitor()
     else:
-        print("无新任务")
-
-if __name__ == "__main__":
-    main()
+        print("activity_logger.py - 活动记录（通知降噪版）")
+        print("Usage: python3 activity_logger.py --monitor")
