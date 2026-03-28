@@ -24,21 +24,30 @@
       "name": "建立 Agent 协作工作流",
       "date": "2026-03-26 09:10",
       "git_commit": "5f78f1a8",
-      "done": true
+      "done": true,
+      "trace": "早期任务无独立trace文件",
+      "report": "reports/daily-market-2026-03-26.md",
+      "doc_sync": "不需要"
     },
     {
       "id": "TASK-2026-0328-001",
       "name": "安全整改 - 历史凭证清理",
       "date": "2026-03-28 20:50",
       "git_commit": "36ddd59",
-      "done": true
+      "done": true,
+      "trace": "本次对话执行",
+      "report": "本次对话记录",
+      "doc_sync": "HEARTBEAT.md已更新"
     },
     {
       "id": "TASK-2026-0328-002",
       "name": "taskPool真值统一 + update-system-json.py修复",
       "date": "2026-03-28 21:35",
-      "git_commit": "36ddd59",
-      "done": true
+      "git_commit": "8b5780a",
+      "done": true,
+      "trace": "本次对话执行",
+      "report": "本次对话记录",
+      "doc_sync": "HEARTBEAT.md已更新"
     }
   ],
   "blocked": [
