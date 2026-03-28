@@ -474,3 +474,29 @@ SH000001 (上证指数): OK  27ms
 **明日cron**: 00:30止损监控, 08:30早报, 09:00开盘扫描
 
 **持仓**: 605365 ¥17.47 亏损15.4%，等待用户止损决策
+
+---
+
+## 21:15 安全整改完成
+
+**安全整改结果**:
+- GitHub PAT + MiniMax API Key: ✅ 移至 ~/.config/openclaw/credentials
+- 仓库文件: ✅ 0个文件含明文凭证（TOOLS/MEMORY/HEARTBEAT/docs/02/changelog全部清理）
+- Git历史: ✅ API合并后干净，历史无凭证残留
+- GitHub同步方案: ✅ 凭证存~/.config/openclaw/credentials，git_sync.py读取外部凭证
+
+**GitHub当前状态**:
+- SHA: 50035b50
+- Tag: pre-security-fix-20260328（回滚点）
+- 最新commit: security: 停摆检测+通知降噪+blocked
+
+**新增脚本**:
+- done_guard.py: 任务完成门禁验证
+- stall_detector.py: 停摆/假运行检测
+- notification-rules.md: 通知降噪规则
+
+**taskPool真值**: todo=1, doing=0, done=1, blocked=1
+**done门禁**: done_guard.py 已建立
+**停摆检测**: 59.7h停滞任务已标记blocked
+
+**备份**: backups/openclaw-pre-security-fix_20260328_205603.tar.gz (457MB)
