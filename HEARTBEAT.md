@@ -12,15 +12,15 @@
 **队列文件**：`/home/admin/openclaw/workspace/stock-assistant/tasks/pending_stock_main.json`
 
 **处理流程**：
-1. 检查 pending_stock_main.json 是否存在且有 status=pending_dispatch 的任务
-2. 对每条 pending 任务：调用 `sessions_send(session="agent:stock-main:main", message=...)` 派发
-3. 将已派发的任务 status 改为 "dispatched"，记录 dispatchedAt
-4. 保存队列
+1. 运行 `python3 /home/admin/openclaw/workspace/stock-assistant/scripts/process_inbox.py --queue-only` 读取 pending 任务
+2. 对每条 status=pending_dispatch 的任务：
+   - 调用 `sessions_send(session="agent:stock-main:main", message="任务名：{name}\n\n{content}")` 派发
+   - 将 status 改为 "dispatched"，记录 dispatchedAt
+3. 保存队列
 
-**sessions_send 调用格式**：
-sessions_send(session="agent:stock-main:main", message="任务名：{name}\n\n{content}")
+**注意**：sessions_send 是 agent runtime 工具，在 HEARTBEAT.md 中用自然语言描述意图即可，OpenClaw agent 会理解并执行。
 
-**stock-main session key**：`agent:stock-main:main`（固定）
+**stock-main session key**：`agent:stock-main:main`（由 sessions_send 自动路由到 stock-main agent）
 
 
 
