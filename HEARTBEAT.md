@@ -1,35 +1,21 @@
 # HEARTBEAT.md
 
-## 🚦 入口路由规则（v4: 默认 → stock-main）
+## 入口路由规则
 
-**任何外部触发（cron/用户/inbox）** → main agent → dispatcher.py（spawn stock-* subagents）
-
-**禁止**：process_inbox.py 直接调用 dispatcher.py
-**必须**：process_inbox.py 写 pending_stock_main.json → main agent sessions_send → stock-main
+**入口**：`inbox/` 目录下的 .md 文件
+**处理**：每次 heartbeat 执行 `process_inbox.py`，它扫描 inbox 并通过 `dispatcher.py` 派发任务
+**dispatchedBy**：dispatcher.py 内部硬编码为 "stock-main"
 
 ## Pending 队列处理（每次 heartbeat 执行）
 
-**队列文件**：`/home/admin/openclaw/workspace/stock-assistant/tasks/pending_stock_main.json`
-
-**处理流程**（当收到 systemEvent "inbox-queue:process_pending" 时立即执行）：
+**处理流程**：
 ```
 exec(command="cd /home/admin/openclaw/workspace/stock-assistant && python3 scripts/process_inbox.py 2>&1")
 ```
-该命令扫描 inbox/ 目录，对每个 .md 文件调用 dispatcher.py 派发任务。
 
-**重要**：dispatcher.py 的 dispatchedBy 参数由其内部读取环境变量或配置文件获取，当前为 "stock-main"。
-- stock-* subagents 由 main 在 HEARTBEAT turn 中 spawn，subagent 的 agentId=stock-*，不是 main
-- dispatcher.log 记录的 sessionKey 格式为 agent:main:subagent:*
-
-**cron 触发**：inbox-to-stock-main cron（id: dc4e9a3f）每5分钟唤醒 main，确保队列不会积压太久。
+**cron 触发**：inbox-to-stock-main cron（id: dc4e9a3f）每5分钟唤醒 agent，确保队列不会积压太久。
 
 
-
-## Token 用量监控
-
-⚠️ API（minimaxi.com）当前返回 cookie missing，暂时不可用。
-以 MiniMax 网页显示为准（剩余 > 0 即持续工作）。
-停止线：网页显示剩余 = 0。
 
 ## Portal 健康检查
 ```bash
@@ -41,13 +27,9 @@ pkill -f "python3.*portal"; sleep 1; cd /home/admin/openclaw/workspace/portal &&
 ```
 
 ## 标准检查（按优先级）
-1. **Token 使用量** - 每 heartbeat 检查（已用+剩余 双标签）
-2. **Portal 运行状态** - 每 heartbeat 检查
-3. **Git 提交** - 每 heartbeat 有事实产出
-4. **Memory 更新** - 每天 review
-
-## 🚀 Token-Flush 模式
-**规则**：剩余 > 0 时持续工作，不停止。禁止 HEARTBEAT_OK（剩余>0时）。
+1. **Portal 运行状态** - 每 heartbeat 检查
+2. **Git 提交** - 每 heartbeat 有事实产出
+3. **Memory 更新** - 每天 review
 **内部任务池**：工作流优化 / 提示词 / 失败样本 / 验收规则 / 去重 / SOP / 复盘 / 研究
 
 ## 当前状态（2026-03-28 16:29）
