@@ -320,6 +320,12 @@ def derive_agent_architecture():
     return {"agents": arch, "count": len(arch)}
 
 
+@app.get("/status/workflow-history")
+async def workflow_history():
+    """返回所有 workflow 的流转历史"""
+    return read_json("workflow_history.json") or {"workflows": []}
+
+
 def fetch_live_price(code):
     import urllib.request
     if not code:

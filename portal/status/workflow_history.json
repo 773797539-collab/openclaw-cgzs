@@ -1,0 +1,65 @@
+{
+  "lastUpdated": "2026-03-29T01:38:00+08:00",
+  "workflows": [
+    {
+      "id": "WORKFLOW-2026-0329-001",
+      "stock": "688068",
+      "stockName": "热景生物",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "main",
+          "dispatchedVia": "sessions_spawn",
+          "dispatchedAt": "2026-03-29T00:46:00+08:00",
+          "sessionId": "4da75207-8a00-4573-a14c-0d7ad2021c94",
+          "status": "done",
+          "outputFile": "reports/research-test-2026-03-29.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "main",
+          "dispatchedVia": "sessions_spawn",
+          "dispatchedAt": "2026-03-29T00:46:00+08:00",
+          "sessionId": "7888af7e-e3e9-4a0b-987b-4285acf6da3d",
+          "status": "done",
+          "outputFile": "reports/exec-test-2026-03-29.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "main",
+          "dispatchedVia": "sessions_spawn",
+          "dispatchedAt": "2026-03-29T00:46:00+08:00",
+          "sessionId": "8892f1d0-922d-4d72-a72b-0bd4c43ac991",
+          "status": "done",
+          "score": "8.2/10",
+          "outputFile": "reports/review-test-2026-03-29.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "main",
+          "dispatchedVia": "sessions_spawn + sessions_send",
+          "dispatchedAt": "2026-03-29T00:46:00+08:00 (spawn) / 2026-03-29T01:38:00+08:00 (send)",
+          "sessionId": "fae78a8e-9720-495e-b387-d068c6ce1a1e",
+          "status": "done",
+          "outputFile": "learn-test-2026-03-29.md",
+          "sendTest": {
+            "file": "learn-test-sessions-send.md",
+            "via": "sessions_send",
+            "to": "agent:main:subagent:7ca47646 (persistent session)",
+            "result": "delivered+executed"
+          }
+        }
+      ]
+    }
+  ]
+}
