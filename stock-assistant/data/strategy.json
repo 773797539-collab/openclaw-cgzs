@@ -1,0 +1,28 @@
+{
+  "pool_size": 10,
+  "max_hold_days": 5,
+  "exit_conditions": {
+    "stop_loss_pct": -8,
+    "take_profit_pct": 20
+  },
+  "entry_criteria": {
+    "min_turnover_rate": 3.0,
+    "min_rsi6": 30,
+    "max_rsi6": 75,
+    "kdj_oversold_threshold": 20,
+    "kdj_overbought_threshold": 80,
+    "macd_golden_cross_days": 3,
+    "boll_position_min": 20,
+    "boll_position_max": 80
+  },
+  "filters": {
+    "exclude_st": true,
+    "exclude_new_stock_days": 60,
+    "exclude_涨跌停": true
+  },
+  "notification": {
+    "pool_change_only": true,
+    "daily_report": false
+  },
+  "updated_at": "2026-03-28"
+}

@@ -1,0 +1,146 @@
+{
+  "updated_at": "2026-03-28 03:45",
+  "indices": {
+    "000001": {
+      "name": "上证指数",
+      "price": 3913.72,
+      "change": 0.63
+    },
+    "000300": {
+      "name": "沪深300",
+      "price": 4502.57,
+      "change": 0.56
+    },
+    "000016": {
+      "name": "上证50",
+      "price": 2837.31,
+      "change": 0.45
+    }
+  },
+  "industry_rise10": [
+    {
+      "name": "锂",
+      "change": 8.88
+    },
+    {
+      "name": "能源金属",
+      "change": 7.36
+    },
+    {
+      "name": "医疗研发外包",
+      "change": 5.72
+    },
+    {
+      "name": "钨",
+      "change": 5.35
+    },
+    {
+      "name": "钾肥",
+      "change": 5.28
+    },
+    {
+      "name": "医美服务",
+      "change": 5.03
+    },
+    {
+      "name": "化学制剂",
+      "change": 4.76
+    },
+    {
+      "name": "氮肥",
+      "change": 4.66
+    },
+    {
+      "name": "磷肥及磷化工",
+      "change": 4.53
+    },
+    {
+      "name": "化学制药",
+      "change": 4.52
+    }
+  ],
+  "industry_fall10": [
+    {
+      "name": "逆变器",
+      "change": -0.95
+    },
+    {
+      "name": "国际工程",
+      "change": -0.95
+    },
+    {
+      "name": "保险Ⅲ",
+      "change": -1.04
+    },
+    {
+      "name": "保险Ⅱ",
+      "change": -1.04
+    },
+    {
+      "name": "港口",
+      "change": -1.1
+    },
+    {
+      "name": "光伏发电",
+      "change": -1.11
+    },
+    {
+      "name": "焦煤",
+      "change": -1.16
+    },
+    {
+      "name": "水力发电",
+      "change": -1.37
+    },
+    {
+      "name": "农商行Ⅲ",
+      "change": -1.69
+    },
+    {
+      "name": "风力发电",
+      "change": -2.13
+    }
+  ],
+  "concept_rise10": [
+    {
+      "name": "锂矿概念",
+      "change": 5.52
+    },
+    {
+      "name": "单抗概念",
+      "change": 5.01
+    },
+    {
+      "name": "阿兹海默",
+      "change": 4.96
+    },
+    {
+      "name": "减肥药",
+      "change": 4.81
+    },
+    {
+      "name": "CRO",
+      "change": 4.73
+    },
+    {
+      "name": "创新药",
+      "change": 4.63
+    },
+    {
+      "name": "超级真菌",
+      "change": 4.52
+    },
+    {
+      "name": "重组蛋白",
+      "change": 4.38
+    },
+    {
+      "name": "纳米银",
+      "change": 4.31
+    },
+    {
+      "name": "昨日打二板以上表现",
+      "change": 4.25
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "description": "止损止盈配置，stop_loss为负数(亏到哪止损)，take_profit为正数(赚到哪止盈)",
+  "default": {
+    "stop_loss": -8.0,
+    "take_profit": 10.0
+  },
+  "605365": {
+    "name": "立达信",
+    "stop_loss": -15.0,
+    "take_profit": 5.0,
+    "note": "已深度套牢(-16%)，止损线调整至-15%，止盈5%即可考虑减仓"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "updated_at": "2026-03-28T19:14:04+08:00",
+  "total_value": 1835.0,
+  "total_cost": 2065.5,
+  "total_profit": -230.5,
+  "profit_pct": -11.16,
+  "currency": "CNY",
+  "holdings": [
+    {
+      "code": "605365",
+      "name": "立达信",
+      "shares": 100,
+      "cost": 20.655,
+      "price": 18.35,
+      "change_pct": 6.32,
+      "market_value": 1835.0,
+      "profit": -230.5,
+      "profit_pct": -11.16,
+      "pe_ratio": 22.04,
+      "pb_ratio": 2.47,
+      "updated_at": "2026-03-28T19:14:04+08:00"
+    }
+  ]
+}
