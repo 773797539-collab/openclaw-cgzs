@@ -2,7 +2,7 @@
 
 ## 🚦 入口路由规则（v4: 默认 → stock-main）
 
-**任何外部触发（cron/用户/inbox）** → main agent → sessions_send → stock-main → dispatcher
+**任何外部触发（cron/用户/inbox）** → main agent → dispatcher.py（spawn stock-* subagents）
 
 **禁止**：process_inbox.py 直接调用 dispatcher.py
 **必须**：process_inbox.py 写 pending_stock_main.json → main agent sessions_send → stock-main
@@ -11,16 +11,19 @@
 
 **队列文件**：`/home/admin/openclaw/workspace/stock-assistant/tasks/pending_stock_main.json`
 
-**处理流程**：
-1. 运行 `python3 /home/admin/openclaw/workspace/stock-assistant/scripts/process_inbox.py --queue-only` 读取 pending 任务
-2. 对每条 status=pending_dispatch 的任务：
-   - 调用 `sessions_send(session="agent:stock-main:main", message="任务名：{name}\n\n{content}")` 派发
-   - 将 status 改为 "dispatched"，记录 dispatchedAt
+**处理流程**（同步执行，不等待结果）：
+1. 检查队列文件是否有 status=pending_dispatch 的任务
+2. 对每条 pending 任务：
+   - 读取 name 和 content
+   - 调用 `python3 /home/admin/openclaw/workspace/stock-assistant/scripts/dispatcher.py --dispatch "{name}" "{content}"`
+   - 将 status 改为 "dispatched"，记录 dispatchedAt 和 sessionKey="agent:main:subagent:stock-main"（注意：subagent 由 main 在 HEARTBEAT turn 内 spawn，parent=main）
 3. 保存队列
 
-**注意**：sessions_send 是 agent runtime 工具，在 HEARTBEAT.md 中用自然语言描述意图即可，OpenClaw agent 会理解并执行。
+**重要**：dispatcher.py 的 dispatchedBy 参数由其内部读取环境变量或配置文件获取，当前为 "stock-main"。
+- stock-* subagents 由 main 在 HEARTBEAT turn 中 spawn，subagent 的 agentId=stock-*，不是 main
+- dispatcher.log 记录的 sessionKey 格式为 agent:main:subagent:*
 
-**stock-main session key**：`agent:stock-main:main`（由 sessions_send 自动路由到 stock-main agent）
+**cron 触发**：inbox-to-stock-main cron（id: dc4e9a3f）每5分钟唤醒 main，确保队列不会积压太久。
 
 
 
