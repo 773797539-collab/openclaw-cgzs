@@ -2,6 +2,87 @@
   "doing": [],
   "todo": [
     {
+      "id": "SYS-CRON-TEST2",
+      "name": "证据2",
+      "date": "2026-03-29 07:36",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
+      "id": "SYS-CRON-TEST1",
+      "name": "证据1",
+      "date": "2026-03-29 07:36",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
+      "id": "EVIDENCE2-0725",
+      "name": "验收证据2",
+      "date": "2026-03-29 07:25",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
+      "id": "EVIDENCE1-0725",
+      "name": "验收证据1",
+      "date": "2026-03-29 07:25",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
+      "id": "TEST-0735",
+      "name": "cron HEARTBEAT测试",
+      "date": "2026-03-29 07:21",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
+      "id": "SAMPLE2-0716",
+      "name": "连续触发样本2",
+      "date": "2026-03-29 07:19",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
+      "id": "SAMPLE1-0716",
+      "name": "连续触发样本1",
+      "date": "2026-03-29 07:19",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
+      "id": "FINAL-0705",
+      "name": "最终默认入口验证",
+      "date": "2026-03-29 07:19",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
+      "id": "CONTINUOUS-0640",
+      "name": "连续触发验证-1",
+      "date": "2026-03-29 07:04",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
       "id": "PROD-TEST-0635",
       "name": "生产路径最终验证",
       "date": "2026-03-29 06:33",
@@ -390,6 +471,6 @@
       "approval_required": "否"
     }
   ],
-  "lastUpdated": "2026-03-29 06:33",
+  "lastUpdated": "2026-03-29 07:36",
   "blocked": []
 }

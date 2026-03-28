@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-29T06:34:03+08:00",
+  "lastUpdated": "2026-03-29T07:36:57+08:00",
   "workflows": [
     {
       "id": "WORKFLOW-2026-0329-001",
@@ -557,6 +557,501 @@
       ],
       "dispatchedBy": "stock-main",
       "createdAt": "2026-03-29T06:33:54+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-FE2FC6",
+      "stock": "unknown",
+      "stockName": "连续触发验证-1",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:04:35+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-FE2FC6.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:04:37+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-FE2FC6.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:04:39+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-FE2FC6.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:04:41+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-FE2FC6.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T07:04:33+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-424EA6",
+      "stock": "unknown",
+      "stockName": "最终默认入口验证",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:19:56+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-424EA6.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:19:58+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-424EA6.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:00+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-424EA6.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:02+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-424EA6.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T07:19:54+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-7BDE60",
+      "stock": "unknown",
+      "stockName": "连续触发样本1",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:04+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-7BDE60.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:07+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-7BDE60.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:09+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-7BDE60.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:11+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-7BDE60.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T07:20:02+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-5EB405",
+      "stock": "unknown",
+      "stockName": "连续触发样本2",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:13+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-5EB405.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:14+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-5EB405.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:17+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-5EB405.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:20:20+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-5EB405.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T07:20:11+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-CB71DE",
+      "stock": "unknown",
+      "stockName": "cron HEARTBEAT测试",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:21:50+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-CB71DE.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:21:52+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-CB71DE.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:21:54+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-CB71DE.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:21:56+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-CB71DE.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T07:21:47+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-3F43C3",
+      "stock": "unknown",
+      "stockName": "验收证据1",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:25:11+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-3F43C3.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:25:13+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-3F43C3.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:25:16+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-3F43C3.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:25:18+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-3F43C3.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T07:25:09+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-686668",
+      "stock": "unknown",
+      "stockName": "验收证据2",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:25:23+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-686668.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:25:25+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-686668.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:25:27+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-686668.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:25:29+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-686668.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T07:25:21+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-7B561D",
+      "stock": "unknown",
+      "stockName": "证据1",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:36:42+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-7B561D.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:36:44+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-7B561D.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:36:47+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-7B561D.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:36:49+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-7B561D.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T07:36:40+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-D52D54",
+      "stock": "unknown",
+      "stockName": "证据2",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:36:51+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-D52D54.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:36:53+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-D52D54.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:36:55+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-D52D54.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T07:36:57+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-D52D54.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T07:36:49+08:00"
     }
   ]
 }
