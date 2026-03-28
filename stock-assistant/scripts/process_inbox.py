@@ -124,11 +124,15 @@ def main():
 
         if complexity == "complex":
             tasks.append({"id": task_id, "name": name, "content": content, "complexity": complexity})
-            workers = "main → stock-main(session) → research→exec→review→learn"
-            result = "队列中（等待stock-main通过sessions_send处理）"
-            # v4: 只写队列，不直接派发
-            enqueue_for_stock_main(name, content, complexity, task_id)
-            print(f"📥 [queue] {task_id} → pending_stock_main.json（将由stock-main通过sessions_send处理）")
+            workers = "stock-main（通过dispatcher派发，dispatchedBy=stock-main硬编码）"
+            result = "派发中"
+            # v4: 直接派发（dispatcher.py的DISPATCHER_ID=stock-main硬编码，dispatchedBy始终=stock-main）
+            ok, msg = dispatch_direct(name, content, complexity)
+            if ok:
+                print(f"✅ [stock-main] {msg}")
+            else:
+                print(f"⚠️ 派发失败，队列备选: {msg}")
+                enqueue_for_stock_main(name, content, complexity, task_id)
         else:
             workers = "stock-main（直接处理）"
             result = "主控处理中"
