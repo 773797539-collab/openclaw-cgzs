@@ -78,7 +78,7 @@ curl --location 'https://www.minimaxi.com/v1/api/openplatform/coding_plan/remain
 
 ### 用户信息
 - 手机号：15279089857
-- API Key：sk-cp-B-h-RjQvCGBUCL42doqN1zKJMqhUx1McK-23ceE0nk7WAkHVzqby80U9S2TL6fjQUTolm7aobtX9squzXW5Vsoc-mUYK32RS9ohNwmruEg6vcfU0TjPjTi0（已记录）
+- API Key：<MINIMAX_API_KEY_PLACEHOLDER>（已记录）
 
 
 ## 🚀 Token-Flush 模式（2026-03-27 22:41 激活）

@@ -38,7 +38,7 @@
 
 ## 四、关键配置
 
-- **API Key**: sk-cp-B-h-RjQvCGBUCL42doqN1zKJMqhUx1McK-23ceE0nk7WAkHVzqby80U9S2TL6fjQUTolm7aobtX9squzXW5Vsoc-mUYK32RS9ohNwmruEg6vcfU0TjPjTi0（MiniMax Coding Plan）
+- **API Key**: <MINIMAX_API_KEY>（MiniMax Coding Plan）
 - **数据源**: akshare v1.18.38 + MCP HTTP 82.156.17.205
 - **通知渠道**: Feishu
 
