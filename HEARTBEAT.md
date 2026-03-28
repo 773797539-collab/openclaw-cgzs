@@ -13,9 +13,9 @@
 
 **处理流程**（当收到消息 "process inbox" 时立即执行）：
 ```
-exec(command="python3 /home/admin/openclaw/workspace/stock-assistant/scripts/queue_processor.py")
+exec(command="cd /home/admin/openclaw/workspace/stock-assistant && python3 scripts/process_inbox.py 2>&1")
 ```
-该命令读取 pending_stock_main.json，对每条 pending 任务调用 dispatcher.py 派发，然后更新队列状态为 dispatched。
+该命令扫描 inbox/ 目录，对每个 .md 文件调用 dispatcher.py 派发任务，然后更新队列状态为 dispatched。
 
 **重要**：dispatcher.py 的 dispatchedBy 参数由其内部读取环境变量或配置文件获取，当前为 "stock-main"。
 - stock-* subagents 由 main 在 HEARTBEAT turn 中 spawn，subagent 的 agentId=stock-*，不是 main
