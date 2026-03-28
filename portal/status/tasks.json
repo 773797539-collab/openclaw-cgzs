@@ -2,6 +2,24 @@
   "doing": [],
   "todo": [
     {
+      "id": "PROD-TEST-0635",
+      "name": "生产路径最终验证",
+      "date": "2026-03-29 06:33",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
+      "id": "test-stockmain-0620",
+      "name": "stock-main默认入口测试",
+      "date": "2026-03-29 06:26",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
       "id": "test-final-0540",
       "name": "测试最终架构",
       "date": "2026-03-29 06:04",
@@ -372,6 +390,6 @@
       "approval_required": "否"
     }
   ],
-  "lastUpdated": "2026-03-29 06:04",
+  "lastUpdated": "2026-03-29 06:33",
   "blocked": []
 }

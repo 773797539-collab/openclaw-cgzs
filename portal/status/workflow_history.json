@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-29T06:04:33+08:00",
+  "lastUpdated": "2026-03-29T06:34:03+08:00",
   "workflows": [
     {
       "id": "WORKFLOW-2026-0329-001",
@@ -447,6 +447,116 @@
       ],
       "dispatchedBy": "stock-main",
       "createdAt": "2026-03-29T06:04:24+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-5A3A8A",
+      "stock": "unknown",
+      "stockName": "stock-main默认入口测试",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T06:26:35+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-5A3A8A.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T06:26:37+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-5A3A8A.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T06:26:39+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-5A3A8A.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T06:26:41+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-5A3A8A.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T06:26:33+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-74C241",
+      "stock": "unknown",
+      "stockName": "生产路径最终验证",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T06:33:57+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-74C241.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T06:33:59+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-74C241.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T06:34:01+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-74C241.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T06:34:03+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-74C241.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T06:33:54+08:00"
     }
   ]
 }
