@@ -1,21 +1,34 @@
 # HEARTBEAT.md
 
-## Token 用量监控（P0）
+## 🚦 入口路由规则（v4: 默认 → stock-main）
 
-**查询命令**：
-```bash
-curl -s 'https://www.minimaxi.com/v1/api/openplatform/coding_plan/remains' \
-  -H 'Authorization: Bearer <API Key>'
-```
+**任何外部触发（cron/用户/inbox）** → main agent → sessions_send → stock-main → dispatcher
 
-**⚠️ 唯一判断规则（用户最终确认版）**：
-- 页面显示值 A = **剩余**（不是已用！）
-- 已用 = B - A
-- 剩余占比 = A/B
-- 已用占比 = (B-A)/B
-- 自检：已用 + 剩余 = 总额度；已用% + 剩余% = 100%
+**禁止**：process_inbox.py 直接调用 dispatcher.py
+**必须**：process_inbox.py 写 pending_stock_main.json → main agent sessions_send → stock-main
 
-**⚠️ 停止线**：剩余 = 0 时彻底停止。剩余 > 0 时持续工作（Token-Flush）。
+## Pending 队列处理（每次 heartbeat 执行）
+
+**队列文件**：`/home/admin/openclaw/workspace/stock-assistant/tasks/pending_stock_main.json`
+
+**处理流程**：
+1. 检查 pending_stock_main.json 是否存在且有 status=pending_dispatch 的任务
+2. 对每条 pending 任务：调用 `sessions_send(session="agent:stock-main:main", message=...)` 派发
+3. 将已派发的任务 status 改为 "dispatched"，记录 dispatchedAt
+4. 保存队列
+
+**sessions_send 调用格式**：
+sessions_send(session="agent:stock-main:main", message="任务名：{name}\n\n{content}")
+
+**stock-main session key**：`agent:stock-main:main`（固定）
+
+
+
+## Token 用量监控
+
+⚠️ API（minimaxi.com）当前返回 cookie missing，暂时不可用。
+以 MiniMax 网页显示为准（剩余 > 0 即持续工作）。
+停止线：网页显示剩余 = 0。
 
 ## Portal 健康检查
 ```bash

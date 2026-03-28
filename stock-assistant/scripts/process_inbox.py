@@ -25,8 +25,8 @@ QUEUE_FILE     = "/home/admin/openclaw/workspace/stock-assistant/tasks/pending_s
 WORKSPACE      = "/home/admin/openclaw/workspace"
 DISPATCHER     = "/home/admin/openclaw/workspace/stock-assistant/scripts/dispatcher.py"
 
-# stock-main 持久 session（在 stock-main 成功建立后更新此处）
-STOCK_MAIN_SESSION = "agent:main:subagent:8f790cd7-94b2-405b-9e48-b66bea30128c"
+# stock-main session key（首次 sessions_send 后由 main agent 更新）
+STOCK_MAIN_SESSION = "agent:stock-main:main"
 
 COMPLEX_KEYWORDS = ["分析","研究","策略","规划","设计","回测","搭建","实现","系统","对比","review"]
 SIMPLE_KEYWORDS  = ["查","看","检查","更新","记录","刷新","关闭","完成"]
@@ -90,20 +90,11 @@ def enqueue_for_stock_main(task_name, task_content, complexity, task_id):
 
 def dispatch_direct(name, content, complexity):
     """
-    直接通过 dispatcher 派发（dispatchedBy=stock-main，已建立 session）
-    用于 complex 任务：通过 stock-main session 的 subprocess 执行
+    DEPRECATED（v4 已移除直接派发）
+    派发统一由 stock-main session 通过 sessions_send 触发。
+    process_inbox 只负责写队列，不直接调用 dispatcher。
     """
-    try:
-        result = subprocess.run([
-            "python3", DISPATCHER,
-            "--dispatch", name, content[:500]
-        ], capture_output=True, text=True, timeout=60)
-        if result.returncode == 0:
-            return True, result.stdout.strip()
-        else:
-            return False, f"dispatcher返回码 {result.returncode}"
-    except Exception as e:
-        return False, str(e)
+    return False, "直接派发已禁用（v4: sessions_send 路径）"
 
 def main():
     ensure_inbox_server()
@@ -113,16 +104,7 @@ def main():
 
     inbox_files = sorted([f for f in os.listdir(INBOX_DIR) if f.endswith(".md")])
     if not inbox_files:
-        # 检查待分发队列
-        pending = load_pending()
-        for item in pending[:]:
-            ok, msg = dispatch_direct(item["name"], item["content"], item["complexity"])
-            if ok:
-                pending.remove(item)
-                print(f"✅ [stock-main] {msg}")
-            else:
-                print(f"⚠️ 分发失败: {msg}")
-        save_pending(pending)
+        # 不再直接派发 pending（由 stock-main session 通过 sessions_send 处理）
         return {"action": "idle"}
 
     tasks = load_pending()
@@ -143,16 +125,10 @@ def main():
         if complexity == "complex":
             tasks.append({"id": task_id, "name": name, "content": content, "complexity": complexity})
             workers = "main → stock-main(session) → research→exec→review→learn"
-            result = "派发中（sessions_send→stock-main→dispatcher→dispatchedBy=stock-main）"
-            # 尝试直接通过 stock-main session 执行 dispatcher
-            ok, msg = dispatch_direct(name, content, complexity)
-            if ok:
-                print(f"✅ [stock-main] {msg}")
-                # 同时写入队列（main agent 感知到任务）
-                enqueue_for_stock_main(name, content, complexity, task_id)
-            else:
-                print(f"⚠️ 直接派发失败，队列备选: {msg}")
-                enqueue_for_stock_main(name, content, complexity, task_id)
+            result = "队列中（等待stock-main通过sessions_send处理）"
+            # v4: 只写队列，不直接派发
+            enqueue_for_stock_main(name, content, complexity, task_id)
+            print(f"📥 [queue] {task_id} → pending_stock_main.json（将由stock-main通过sessions_send处理）")
         else:
             workers = "stock-main（直接处理）"
             result = "主控处理中"

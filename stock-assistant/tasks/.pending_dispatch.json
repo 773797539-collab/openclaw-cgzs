@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "id": "test-stock-main-052704",
+    "name": "立达信持仓分析测试",
+    "content": "# 立达信持仓分析测试\n\n请分析立达信(605365)的当前持仓状态和技术信号，用于验证 sessions_send 链路。\n",
+    "complexity": "complex"
+  }
+]

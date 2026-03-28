@@ -2,6 +2,15 @@
   "doing": [],
   "todo": [
     {
+      "id": "test-stock-main-052704",
+      "name": "立达信持仓分析测试",
+      "date": "2026-03-29 05:27",
+      "workers": "main → stock-main(session) → research→exec→review→learn",
+      "desc": "复杂度: complex",
+      "result": "队列中（等待stock-main通过sessions_send处理）",
+      "dispatchedBy": "stock-main"
+    },
+    {
       "id": "TASK-DISPATCH-TEST",
       "name": "热景生物技术分析",
       "date": "2026-03-29 04:42",
@@ -345,6 +354,6 @@
       "approval_required": "否"
     }
   ],
-  "lastUpdated": "2026-03-29 04:42",
+  "lastUpdated": "2026-03-29 05:27",
   "blocked": []
 }
