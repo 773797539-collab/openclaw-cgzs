@@ -2,6 +2,15 @@
   "doing": [],
   "todo": [
     {
+      "id": "test-final-0540",
+      "name": "测试最终架构",
+      "date": "2026-03-29 06:04",
+      "workers": "stock-main（直接处理）",
+      "desc": "复杂度: simple",
+      "result": "主控处理中",
+      "dispatchedBy": "stock-main"
+    },
+    {
       "id": "test-rehuanwu-0535",
       "name": "name: 热景生物技术分析",
       "date": "2026-03-29 05:59",
@@ -363,6 +372,6 @@
       "approval_required": "否"
     }
   ],
-  "lastUpdated": "2026-03-29 05:59",
+  "lastUpdated": "2026-03-29 06:04",
   "blocked": []
 }
