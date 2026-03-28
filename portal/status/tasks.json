@@ -2,6 +2,15 @@
   "doing": [],
   "todo": [
     {
+      "id": "test-rehuanwu-0535",
+      "name": "name: 热景生物技术分析",
+      "date": "2026-03-29 05:59",
+      "workers": "stock-main（通过dispatcher派发，dispatchedBy=stock-main硬编码）",
+      "desc": "复杂度: complex",
+      "result": "派发中",
+      "dispatchedBy": "stock-main"
+    },
+    {
       "id": "test-stock-main-052704",
       "name": "立达信持仓分析测试",
       "date": "2026-03-29 05:27",
@@ -354,6 +363,6 @@
       "approval_required": "否"
     }
   ],
-  "lastUpdated": "2026-03-29 05:27",
+  "lastUpdated": "2026-03-29 05:59",
   "blocked": []
 }

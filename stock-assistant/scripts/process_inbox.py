@@ -90,11 +90,20 @@ def enqueue_for_stock_main(task_name, task_content, complexity, task_id):
 
 def dispatch_direct(name, content, complexity):
     """
-    DEPRECATED（v4 已移除直接派发）
-    派发统一由 stock-main session 通过 sessions_send 触发。
-    process_inbox 只负责写队列，不直接调用 dispatcher。
+    直接调用 dispatcher.py 派发任务。
+    dispatcher.py 的 DISPATCHER_ID="stock-main" 硬编码，所以 dispatchedBy 始终是 stock-main。
     """
-    return False, "直接派发已禁用（v4: sessions_send 路径）"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    dispatcher = os.path.join(script_dir, "dispatcher.py")
+    result = subprocess.run(
+        [sys.executable, dispatcher, "--dispatch", name, content],
+        capture_output=True, text=True, timeout=120,
+        cwd=script_dir
+    )
+    if result.returncode == 0:
+        return True, result.stdout.strip()
+    else:
+        return False, result.stderr.strip()[:200]
 
 def main():
     ensure_inbox_server()
