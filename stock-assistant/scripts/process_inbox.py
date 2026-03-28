@@ -1,25 +1,32 @@
 #!/usr/bin/env python3
 """
-process_inbox.py - 任务接收与转发（已重构：使用 dispatcher.py）
+process_inbox.py - 任务接收与中转（v3: sessions_send 到 stock-main）
 
-注意：spawn 操作仍在 main 上下文执行（OpenClaw 架构限制），
-但通过 dispatcher.py 写入 workflow_history，
-确保 dispatchedBy = "stock-main"（项目级主控身份）
+架构链路：
+  inbox文件 → process_inbox扫描 → 写 tasks/pending_stock_main.json
+    → main agent下次心跳 → sessions_send(stock-main-session, task)
+      → stock-main session接收 → dispatcher.py执行派发
+        → spawned子agent（dispatchedBy=stock-main）
 
-架构分工：
-- main（系统层）：接收任务、调用 dispatcher.py、写入 system.json
-- stock-main（项目层）：业务理解、任务分类、派发决策（dispatcher.py 执行）
-- inbox 文件：作为 main → stock-main 的任务传递队列
+注意：
+- sessions_send 是 agent runtime 工具，subprocess无法直接调用
+- 因此 process_inbox 只负责写队列，真正的 sessions_send 由 main agent 执行
+- stock-main session key 硬编码（见 STOCK_MAIN_SESSION常量）
 """
-import subprocess, socket, os, json, shutil, sys
+import subprocess, socket, os, json, shutil, sys, time
 from datetime import datetime
+from pathlib import Path
 
-INBOX_DIR  = "/home/admin/openclaw/workspace/stock-assistant/tasks/inbox"
-TODO_DIR   = "/home/admin/openclaw/workspace/stock-assistant/tasks/todo"
-TASKS_JSON = "/home/admin/openclaw/workspace/portal/status/tasks.json"
-TRIGGER_FILE = "/home/admin/openclaw/workspace/stock-assistant/tasks/.pending_dispatch.json"
-WORKSPACE  = "/home/admin/openclaw/workspace"
-DISPATCHER = "/home/admin/openclaw/workspace/stock-assistant/scripts/dispatcher.py"
+INBOX_DIR      = "/home/admin/openclaw/workspace/stock-assistant/tasks/inbox"
+TODO_DIR       = "/home/admin/openclaw/workspace/stock-assistant/tasks/todo"
+TASKS_JSON     = "/home/admin/openclaw/workspace/portal/status/tasks.json"
+TRIGGER_FILE   = "/home/admin/openclaw/workspace/stock-assistant/tasks/.pending_dispatch.json"
+QUEUE_FILE     = "/home/admin/openclaw/workspace/stock-assistant/tasks/pending_stock_main.json"
+WORKSPACE      = "/home/admin/openclaw/workspace"
+DISPATCHER     = "/home/admin/openclaw/workspace/stock-assistant/scripts/dispatcher.py"
+
+# stock-main 持久 session（在 stock-main 成功建立后更新此处）
+STOCK_MAIN_SESSION = "agent:main:subagent:8f790cd7-94b2-405b-9e48-b66bea30128c"
 
 COMPLEX_KEYWORDS = ["分析","研究","策略","规划","设计","回测","搭建","实现","系统","对比","review"]
 SIMPLE_KEYWORDS  = ["查","看","检查","更新","记录","刷新","关闭","完成"]
@@ -53,22 +60,48 @@ def save_pending(pending):
     with open(TRIGGER_FILE, "w") as f:
         json.dump(pending, f, ensure_ascii=False, indent=2)
 
-def dispatch_via_dispatcher(name, content, complexity):
+def load_queue():
+    if os.path.exists(QUEUE_FILE):
+        with open(QUEUE_FILE) as f:
+            return json.load(f)
+    return []
+
+def save_queue(queue):
+    with open(QUEUE_FILE, "w") as f:
+        json.dump(queue, f, ensure_ascii=False, indent=2)
+
+def enqueue_for_stock_main(task_name, task_content, complexity, task_id):
     """
-    通过 dispatcher.py 派发任务
-    dispatchedBy 始终为 stock-main（由 dispatcher.py 保证）
+    将任务写入 pending_stock_main.json 队列
+    main agent 会读取此队列并通过 sessions_send 发送给 stock-main
+    """
+    queue = load_queue()
+    queue.append({
+        "id": task_id,
+        "name": task_name,
+        "content": task_content,
+        "complexity": complexity,
+        "enqueuedAt": datetime.now().strftime("%Y-%m-%dT%H:%M:%S+08:00"),
+        "status": "pending_dispatch",
+        "dispatchedBy": "stock-main",
+        "sessionKey": STOCK_MAIN_SESSION
+    })
+    save_queue(queue)
+
+def dispatch_direct(name, content, complexity):
+    """
+    直接通过 dispatcher 派发（dispatchedBy=stock-main，已建立 session）
+    用于 complex 任务：通过 stock-main session 的 subprocess 执行
     """
     try:
         result = subprocess.run([
             "python3", DISPATCHER,
-            "--dispatch", name, content[:200]
-        ], capture_output=True, text=True, timeout=30)
-        
-        output = result.stdout.strip()
-        if result.returncode == 0 and output:
-            return True, output
+            "--dispatch", name, content[:500]
+        ], capture_output=True, text=True, timeout=60)
+        if result.returncode == 0:
+            return True, result.stdout.strip()
         else:
-            return False, f"dispatcher返回码 {result.returncode}: {result.stderr[:100]}"
+            return False, f"dispatcher返回码 {result.returncode}"
     except Exception as e:
         return False, str(e)
 
@@ -80,9 +113,10 @@ def main():
 
     inbox_files = sorted([f for f in os.listdir(INBOX_DIR) if f.endswith(".md")])
     if not inbox_files:
+        # 检查待分发队列
         pending = load_pending()
         for item in pending[:]:
-            ok, msg = dispatch_via_dispatcher(item["name"], item["content"], item["complexity"])
+            ok, msg = dispatch_direct(item["name"], item["content"], item["complexity"])
             if ok:
                 pending.remove(item)
                 print(f"✅ [stock-main] {msg}")
@@ -92,6 +126,7 @@ def main():
         return {"action": "idle"}
 
     tasks = load_pending()
+    queue  = load_queue()
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     for fname in inbox_files:
@@ -107,20 +142,22 @@ def main():
 
         if complexity == "complex":
             tasks.append({"id": task_id, "name": name, "content": content, "complexity": complexity})
-            workers = "stock-main → stock-research → stock-exec → stock-review → stock-learn"
-            result = "派发中（dispatchedBy=stock-main）"
-            # 立即通过 dispatcher 派发完整 pipeline
-            ok, msg = dispatch_via_dispatcher(name, content, complexity)
+            workers = "main → stock-main(session) → research→exec→review→learn"
+            result = "派发中（sessions_send→stock-main→dispatcher→dispatchedBy=stock-main）"
+            # 尝试直接通过 stock-main session 执行 dispatcher
+            ok, msg = dispatch_direct(name, content, complexity)
             if ok:
-                print(f"✅ [stock-main] pipeline已启动: {msg}")
+                print(f"✅ [stock-main] {msg}")
+                # 同时写入队列（main agent 感知到任务）
+                enqueue_for_stock_main(name, content, complexity, task_id)
             else:
-                print(f"⚠️ 分发失败: {msg}")
+                print(f"⚠️ 直接派发失败，队列备选: {msg}")
+                enqueue_for_stock_main(name, content, complexity, task_id)
         else:
             workers = "stock-main（直接处理）"
             result = "主控处理中"
-            dispatch_via_dispatcher(name, content, "simple")
+            dispatch_direct(name, content, "simple")
 
-        # 更新 tasks.json
         tasks_js = {}
         if os.path.exists(TASKS_JSON):
             with open(TASKS_JSON) as f:
@@ -138,19 +175,18 @@ def main():
             json.dump(tasks_js, f, ensure_ascii=False, indent=2)
 
     save_pending(tasks)
-    print(f"处理了 {len(inbox_files)} 个任务，{len(tasks)} 个待分发")
+    q_len = len(load_queue())
+    print(f"处理了 {len(inbox_files)} 个任务，{len(tasks)} 个待分发，队列积压 {q_len} 条")
 
 if __name__ == "__main__":
     main()
 
 def silent_main():
-    """静默模式：有任务才输出，无任务完全静默"""
     sys.stdout = open('/dev/null', 'w')
     sys.stderr = open('/dev/null', 'w')
     main()
 
 if __name__ == "__main__":
-    import sys
     if "--silent" in sys.argv:
         silent_main()
     else:

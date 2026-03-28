@@ -1,6 +1,16 @@
 {
   "doing": [],
-  "todo": [],
+  "todo": [
+    {
+      "id": "TASK-DISPATCH-TEST",
+      "name": "热景生物技术分析",
+      "date": "2026-03-29 04:42",
+      "workers": "main → stock-main(session) → research→exec→review→learn",
+      "desc": "复杂度: complex",
+      "result": "派发中（sessions_send→stock-main→dispatcher→dispatchedBy=stock-main）",
+      "dispatchedBy": "stock-main"
+    }
+  ],
   "done": [
     {
       "name": "多Agent协作演示 - 立达信技术分析",
@@ -335,6 +345,6 @@
       "approval_required": "否"
     }
   ],
-  "lastUpdated": "2026-03-28",
+  "lastUpdated": "2026-03-29 04:42",
   "blocked": []
 }

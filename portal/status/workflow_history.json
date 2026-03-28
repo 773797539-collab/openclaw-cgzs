@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-29T04:39:49+08:00",
+  "lastUpdated": "2026-03-29T04:42:47+08:00",
   "workflows": [
     {
       "id": "WORKFLOW-2026-0329-001",
@@ -117,6 +117,116 @@
       ],
       "dispatchedBy": "stock-main",
       "createdAt": "2026-03-29T04:39:41+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-D1B919",
+      "stock": "unknown",
+      "stockName": "热景生物技术分析",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:42:28+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-D1B919.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:42:31+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-D1B919.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:42:34+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-D1B919.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:42:38+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-D1B919.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T04:42:25+08:00"
+    },
+    {
+      "id": "WORKFLOW-20260329-F89B74",
+      "stock": "unknown",
+      "stockName": "热景生物技术分析",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:42:40+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-F89B74.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:42:42+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-F89B74.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:42:45+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-F89B74.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:42:47+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-F89B74.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T04:42:38+08:00"
     }
   ]
 }
