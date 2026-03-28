@@ -11,7 +11,7 @@
 
 **队列文件**：`/home/admin/openclaw/workspace/stock-assistant/tasks/pending_stock_main.json`
 
-**处理流程**（当收到消息 "process inbox" 时立即执行）：
+**处理流程**（当收到 systemEvent "inbox-queue:process_pending" 时立即执行）：
 ```
 exec(command="cd /home/admin/openclaw/workspace/stock-assistant && python3 scripts/process_inbox.py 2>&1")
 ```
