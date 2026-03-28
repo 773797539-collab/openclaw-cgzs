@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-29T04:15:00+08:00",
+  "lastUpdated": "2026-03-29T04:39:49+08:00",
   "workflows": [
     {
       "id": "WORKFLOW-2026-0329-001",
@@ -62,6 +62,61 @@
           }
         }
       ]
+    },
+    {
+      "id": "WORKFLOW-20260329-820B29",
+      "stock": "unknown",
+      "stockName": "立达信持仓分析",
+      "pipeline": "research→exec→review→learn",
+      "status": "completed",
+      "steps": [
+        {
+          "step": 1,
+          "role": "research",
+          "agent": "stock-research",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:39:43+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/research-WORKFLOW-20260329-820B29.md"
+        },
+        {
+          "step": 2,
+          "role": "exec",
+          "agent": "stock-exec",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:39:45+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/exec-WORKFLOW-20260329-820B29.md"
+        },
+        {
+          "step": 3,
+          "role": "review",
+          "agent": "stock-review",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:39:47+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/review-WORKFLOW-20260329-820B29.md"
+        },
+        {
+          "step": 4,
+          "role": "learn",
+          "agent": "stock-learn",
+          "dispatchedBy": "stock-main",
+          "dispatchedVia": "sessions_spawn (via main context, on behalf of stock-main)",
+          "dispatchedAt": "2026-03-29T04:39:49+08:00",
+          "sessionId": "",
+          "status": "done",
+          "outputFile": "reports/learn-WORKFLOW-20260329-820B29.md"
+        }
+      ],
+      "dispatchedBy": "stock-main",
+      "createdAt": "2026-03-29T04:39:41+08:00"
     }
   ]
 }
