@@ -279,21 +279,24 @@ def screen_stock(mcp_full_text: str, money_flow_text: str = "") -> Dict:
 
 # ─── 批量扫描 ───────────────────────────────────────────────────────────────
 
-def batch_screen(codes: List[Tuple[str, str]]) -> List[Dict]:
-    """批量扫描多只股票
+def batch_screen(codes: List[str]) -> List[Dict]:
+    """批量扫描多只股票（只支持沪市）
     
-    codes: [(code, name), ...]
+    codes: [code_str, ...]  例如 ['605365', '688197']
     """
     from mcp_utils import mcp_full, normalize_symbol
     results = []
-    for code, name in codes:
-        text = mcp_full(normalize_symbol(code))
+    for code in codes:
+        norm = normalize_symbol(code)
+        text = mcp_full(norm) if norm else None
         if text:
-            r = screen_stock(text, text)  # money_flow_text = same text
-            r['code'] = code; r['name'] = name
+            r = screen_stock(text, text)
+            r['code'] = code
             results.append(r)
-            kdj_desc = r.get('kdj', {}).get('desc', '?')[:30]
-        print(f"{code} {name}: score={r['score']} rec={r['recommendation']} kdj={kdj_desc}")
+            kdj_d = r.get('kdj', {}).get('desc', '?')[:25]
+            print(f"{code}: score={r['score']} rec={r['recommendation']} kdj={kdj_d}")
+        else:
+            print(f"{code}: 无数据")
     return results
 
 

@@ -411,3 +411,29 @@ SH000001 (上证指数): OK  27ms
 | 股票 | 成本 | 现价 | 亏损% | 状态 |
 |------|------|------|-------|------|
 | 立达信(605365) | ¥20.655 | ¥17.47 | -15.4% | ⚠️ 跌破止损线 |
+
+---
+
+## 20:10 更新
+
+**GitHub Push: ✅ 成功！**
+- 方式: GitHub Contents API (175 files)
+- 仓库: https://github.com/773797539-collab/openclaw-cgzs
+- remote: HTTPS+PAT
+
+**持仓状态**: 立达信(605365) 亏损-15.4%，已跌破止损线，待用户决策
+
+---
+
+## 20:15 更新
+
+**batch_screen 测试**: ✅ 605365=70watch, 688197=65watch, 600519=50neutral
+
+**tech_screen 完整函数清单**:
+- parse_tech_table（修复版：lines[2]=表头，BBANDS三列独立）
+- detect_kdj_cross / detect_rsi_oversold / detect_macd_cross / detect_ma_alignment
+- detect_rsi_divergence / detect_macd_divergence
+- calc_stop_loss / screen_stock / batch_screen（修复版：List[str]参数）
+
+**持仓**: 立达信(605365) ¥17.47 亏损15.4%，等待用户决策
+**GitHub**: ✅ HTTPS+PAT remote已配置，Contents API已验证175文件上传
