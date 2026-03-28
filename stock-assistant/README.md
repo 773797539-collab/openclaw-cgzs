@@ -122,7 +122,7 @@ pkill -f "python3 server.py" && cd portal && nohup python3 server.py > /tmp/port
 ### Token 查询
 ```bash
 curl -s 'https://www.minimaxi.com/v1/api/openplatform/coding_plan/remains' \
-  -H 'Authorization: Bearer <MINIMAX_API_KEY_REVOKED>'
+  -H 'Authorization: Bearer <MINIMAX_API_KEY>'
 ```
 
 ### MCP 故障排查

@@ -33,7 +33,7 @@
 
 ### 模型配置
 - 主模型: MiniMax-M2.7 (model_1774461627132)
-- API Key: <MINIMAX_API_KEY_REVOKED>
+- API Key: <MINIMAX_API_KEY>
 - 上下文窗口: 128000
 - 最大输出: 4096
 

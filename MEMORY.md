@@ -38,7 +38,7 @@
 
 ## 四、关键配置
 
-- **API Key**: <MINIMAX_API_KEY_REVOKED>（MiniMax Coding Plan）
+- **API Key**: <MINIMAX_API_KEY>（MiniMax Coding Plan）
 - **数据源**: akshare v1.18.38 + MCP HTTP 82.156.17.205
 - **通知渠道**: Feishu
 

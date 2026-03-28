@@ -19,7 +19,7 @@
 
 ## 用户提供的环境信息
 
-- API Key（MiniMax Coding Plan）：<MINIMAX_API_KEY_REVOKED>
+- API Key（MiniMax Coding Plan）：<MINIMAX_API_KEY>
 - 手机号：15279089857
 - OpenClaw 版本：2026.3.24 (cff6dc9)
 - Node：v24.14.0
