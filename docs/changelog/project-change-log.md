@@ -413,3 +413,9 @@
 - 候选股：688197首药控股(RSI47.7)、688759必贝特(RSI49.1)、002068黑猫(RSI46.7)
 - 持仓分析：605365立达信浮亏-11.2%，MA20=¥20.40，周一关注能否突破
 - README追加系统架构说明
+
+### 修复项（2026-03-29 14:xx）
+- `inbox-cron.sh` 新增调用 `queue_processor.py`（原缺失，队列消费从未执行）
+- `process_inbox.py` 清理重复注释，修复 STOCK_MAIN_SESSION 错误值
+- `heartbeat_token_guard.py` 新建（Token检查守卫，API失败时静默停摆）
+- HEARTBEAT.md 集成 token_guard 检查流程
