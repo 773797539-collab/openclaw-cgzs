@@ -3,7 +3,7 @@
     "id": "update_system_json",
     "name": "更新 system.json",
     "desc": "更新门户 system.json（Token/任务池/cron状态）",
-    "lastRun": "2026-03-29T19:41:37.165031",
+    "lastRun": "2026-03-29T20:12:15.079793",
     "runCount": 1,
     "status": "done"
   },
@@ -11,7 +11,7 @@
     "id": "update_portal_index",
     "name": "重建 Portal 首页",
     "desc": "重建 Portal index.html",
-    "lastRun": "2026-03-29T19:41:37.244209",
+    "lastRun": "2026-03-29T20:12:15.175054",
     "runCount": 1,
     "status": "done"
   },
@@ -19,7 +19,7 @@
     "id": "git_status_check",
     "name": "检查 Git 状态",
     "desc": "检查工作区是否干净，有无未提交",
-    "lastRun": "2026-03-29T19:41:37.283846",
+    "lastRun": "2026-03-29T20:12:15.232154",
     "runCount": 1,
     "status": "done"
   },
@@ -27,7 +27,7 @@
     "id": "clean_pycache",
     "name": "清理 __pycache__",
     "desc": "清理所有 Python 缓存文件",
-    "lastRun": "2026-03-29T19:41:39.740685",
+    "lastRun": "2026-03-29T20:12:15.396858",
     "runCount": 1,
     "status": "done"
   },
@@ -35,7 +35,7 @@
     "id": "verify_json_health",
     "name": "验证 JSON 健康度",
     "desc": "检查 stock-assistant/data/ 所有 JSON 是否有效",
-    "lastRun": "2026-03-29T19:41:39.995660",
+    "lastRun": "2026-03-29T20:12:16.712781",
     "runCount": 1,
     "status": "done"
   },
@@ -43,7 +43,7 @@
     "id": "dispatcher_status",
     "name": "检查 Dispatcher 状态",
     "desc": "检查 dispatcher workflow_history 状态",
-    "lastRun": "2026-03-29T19:41:43.184551",
+    "lastRun": "2026-03-29T20:12:16.928860",
     "runCount": 1,
     "status": "done"
   },
@@ -51,25 +51,25 @@
     "id": "process_pending_queue",
     "name": "处理待分发队列",
     "desc": "处理 pending_stock_main.json 中的积压任务",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
+    "lastRun": "2026-03-29T20:12:18.438108",
+    "runCount": 1,
+    "status": "done"
   },
   {
     "id": "update_memory",
     "name": "更新 MEMORY.md 时间戳",
     "desc": "将 MEMORY.md 当前时间戳更新并 commit",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
+    "lastRun": "2026-03-29T20:12:21.997375",
+    "runCount": 1,
+    "status": "done"
   },
   {
     "id": "git_fetch_rebase",
     "name": "Git fetch + rebase",
     "desc": "同步远程更改",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
+    "lastRun": "2026-03-29T20:12:23.136635",
+    "runCount": 1,
+    "status": "done"
   },
   {
     "id": "verify_cron_jobs",
