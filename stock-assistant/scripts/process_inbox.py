@@ -110,13 +110,16 @@ def dispatch_direct(name, content, complexity):
 
 def main():
     ensure_inbox_server()
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    print(f"[{ts}] process_inbox.py invoked", flush=True)
 
     if not os.path.exists(INBOX_DIR):
+        print(f"[{ts}] inbox目录不存在", flush=True)
         return {"action": "no_inbox"}
 
     inbox_files = sorted([f for f in os.listdir(INBOX_DIR) if f.endswith(".md")])
     if not inbox_files:
-        # 不再直接派发 pending（由 stock-main session 通过 sessions_send 处理）
+        print(f"[{ts}] inbox空，队列无积压", flush=True)
         return {"action": "idle"}
 
     tasks = load_pending()
@@ -178,14 +181,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-def silent_main():
-    sys.stdout = open('/dev/null', 'w')
-    sys.stderr = open('/dev/null', 'w')
-    main()
-
-if __name__ == "__main__":
-    if "--silent" in sys.argv:
-        silent_main()
-    else:
-        main()

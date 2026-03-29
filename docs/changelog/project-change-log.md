@@ -386,3 +386,19 @@
 | daily-morning-briefing | 30 8 * * 1-5 | ✅ ok |
 | daily-market-open-scan | 0 9 * * 1-5 | ✅ ok |
 | daily-market-close-scan | 0 16 * * 1-5 | ✅ ok |
+
+## 2026-03-29 更新
+
+### 入口架构最终版
+- **生产入口**: Linux系统cron → `/home/admin/inbox-cron.sh` → `process_inbox.py` → `dispatcher.py` → workflow
+- **dispatchedBy**: stock-main（硬编码）
+- OpenClaw inbox cron已禁用（OpenClaw cron在agent活跃时无法可靠送达systemEvent）
+- process_inbox.py双重调用bug已修复（原文件有重复的`if __name__`块）
+
+### HEARTBEAT.md 精简
+- 524行→85行，删除历史记录，保留架构+状态
+
+### 多Agent验收通过
+- stock-main作为项目主控session ✅
+- dispatchedBy=stock-main ✅
+- workflow完整链路 ✅
