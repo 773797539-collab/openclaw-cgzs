@@ -61,8 +61,8 @@ backups/：已清理到1个文件(301MB)，释放170MB
 
 ## 今日状态（2026-03-29）
 
-**Token**: 88.9%（2.1小时剩余）✅
-**Git**: master已同步（36028ab）
+**Token**: 86.3%（1.6小时剩余）✅
+**Git**: master已同步（9e0f705）
 **系统cron**: process_inbox.py 每5分钟 ✅
 **Portal**: 正常
 **workflow**: 19条完成，0条进行中
