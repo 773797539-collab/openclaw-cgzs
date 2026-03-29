@@ -127,3 +127,29 @@ curl -s 'https://www.minimaxi.com/v1/api/openplatform/coding_plan/remains' \
 
 ### MCP 故障排查
 见 `docs/MCP_troubleshooting.md`
+
+---
+
+## 系统架构
+
+### 入口架构（2026-03-29 最终版）
+
+```
+inbox/ → Linux系统cron(*/5 * * * *) → inbox-cron.sh → process_inbox.py → dispatcher.py → sessions_spawn → workflow
+dispatcher.py dispatchedBy = "stock-main"（硬编码）
+```
+
+**生产入口**: `*/5 * * * * /home/admin/openclaw/workspace/stock-assistant/inbox-cron.sh`
+
+**OpenClaw inbox cron**: 已禁用（`dc4e9a3f`，enabled=False）
+原因：agent活跃时systemEvent无法送达
+
+**脚本路径**: `/home/admin/openclaw/workspace/stock-assistant/inbox-cron.sh`
+- PID锁防止并发
+- stdout/stderr重定向到 `/tmp/inbox-cron.log`
+- 绝对路径，不依赖工作目录
+
+### workflow dispatchBy 机制
+- dispatcher.py 硬编码 `DISPATCHER_ID = "stock-main"`
+- 所有通过 inbox → dispatcher → sessions_spawn 的任务，dispatchedBy=stock-main
+- stock-main 是所有 workflow 的统一入口
