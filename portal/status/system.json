@@ -1,8 +1,8 @@
 {
-  "lastUpdated": "2026-03-29T16:25:33.285854+08:00",
+  "lastUpdated": "2026-03-29T19:41:37.239654+08:00",
   "openclaw": {
     "version": "2026.3.24",
-    "gitCommit": "c080db9",
+    "gitCommit": "520bfc8",
     "node": "v24.14.0",
     "gateway": {
       "status": "running",
@@ -10,7 +10,7 @@
       "port": 18789,
       "bind": "loopback"
     },
-    "totalCommits": 101
+    "totalCommits": 108
   },
   "agents": {
     "main": {
@@ -106,10 +106,10 @@
     }
   },
   "token": {
-    "remaining": 4427,
+    "remaining": 4153,
     "total": 4500,
-    "pct": 98.4,
-    "hours": 3.8,
+    "pct": 92.3,
+    "hours": 0.3,
     "status": "ok"
   }
 }
