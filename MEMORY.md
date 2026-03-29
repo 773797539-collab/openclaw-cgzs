@@ -2,15 +2,15 @@
 
 **创建时间**: 2026-03-26
 
-**最后更新**: 2026-03-29 08:00
+**最后更新**: 2026-03-29 14:10
 ---
 
 ## 一、系统概述
 
 这是一个基于 OpenClaw 的个人 AI 指挥系统，当前第一业务是 A 股辅助。
 
-**Git Commit**: 9637afa
-**OpenClaw 版本**: 2026.3.24
+**Git Commit**: 50b3701
+**OpenClaw 版本**: 2026.3.24 (cff6dc9)
 
 ---
 
@@ -38,7 +38,7 @@
 
 ## 四、关键配置
 
-- **API Key**: <MINIMAX_API_KEY>（MiniMax Coding Plan）
+- **API Key**: sk-cp-B-h-RjQvCGBUCL42doqN1zKJMqhUx1McK-23ceE0nk7WAkHVzqby80U9S2TL6fjQUTolm7aobtX9squzXW5Vsoc-mUYK32RS9ohNwmruEg6vcfU0TjPjTi0（2026-03-29 更新）
 - **数据源**: akshare v1.18.38 + MCP HTTP 82.156.17.205
 - **通知渠道**: Feishu
 
@@ -58,72 +58,46 @@
 
 ---
 
-## 六、Token 使用规则（用户最终确认版）
+## 六、Token 使用规则
 
-### 核心原则
-- 只要当前周期还有可用 token，就继续工作，不允许主动停下来
-- 不接受"无事可做所以停止"——必须自己从待办、待优化项、历史问题、文档、技能研究中持续生成任务
-- 允许停止的唯一情况：token 真正耗尽 / 必须由人工确认的阻塞 / 系统网络权限异常
-
-### Token 周期规则（MiniMax Coding Plan，每天按自然日分段）
-| 周期 | 时间段 | 时长 |
-|------|--------|------|
-| 1 | 00:00–05:00 | 5小时 |
-| 2 | 05:00–10:00 | 5小时 |
-| 3 | 10:00–15:00 | 5小时 |
-| 4 | 15:00–20:00 | 5小时 |
-| 5 | 20:00–24:00 | 4小时 |
-
-每天 00:00 重新从周期1开始循环。
-
-### 唯一判断规则（用户亲自确认）
-- **页面显示值 A = 剩余**（不是已用！用户后台显示"3940/4500"含义是剩余3940）
-- 已用 = B - A
-- 剩余占比 = A/B
-- 已用占比 = (B-A)/B
-- 自检：已用 + 剩余 = 总额度；已用% + 剩余% = 100%
-
-### 固定输出格式
+### API 命令（正确版）
+```bash
+curl -s 'https://www.minimaxi.com/v1/api/openplatform/coding_plan/remains' \
+  -H 'Authorization: Bearer sk-cp-B-h-RjQvCGBUCL42doqN1zKJMqhUx1McK-23ceE0nk7WAkHVzqby80U9S2TL6fjQUTolm7aobtX9squzXW5Vsoc-mUYK32RS9ohNwmruEg6vcfU0TjPjTi0' \
+  -H 'Content-Type: application/json'
 ```
-当前周期：[N]
-周期时间段：[起止时间]
-周期总额度：B
-当前剩余：A（usage_count）
-当前已用：B-A
-剩余占比：A/B
-已用占比：(B-A)/B
-```
+
+### 字段含义
+- `current_interval_usage_count` = **剩余额度**（字段名含usage但语义是剩余）
+- `current_interval_total_count` = 总额度
+- 已用 = total - usage
+- 自检：已用% + 剩余% = 100%
 
 ### 停止线
-- 剩余 ≤ 20%（即已用 ≥ 80%）时进入关注
-- 剩余 = 0 时彻底停止
-- **Token-Flush**：剩余 > 0 时持续工作
+- 剩余 ≤ 20% → 进入关注
+- 剩余 = 0 → 彻底停止
+- **Token-Flush**：剩余 > 0 时持续工作，不主动停
+
+### 静默停摆规则（硬规）
+Token=0 或 API 失败时：**不发任何消息到任何渠道**，直接静默返回 HEARTBEAT_OK。
 
 ---
 
 ## 七、MCP 工具状态
 
-- **可用工具**（tools/list 返回）：brief / medium / full
-- **session 级工具**（不稳定，session 重置后消失）：industry_hot / LimitUp
-- **medium 工具能力**：
-  - brief: 价格 + PE/PB + 名称
-  - medium: + 资金流向（主力净流入/超大单/大单/中单/小单）+ 换手率 + 振幅 + 5日/20日/60日均价和均量
-  - full: + 240日数据 + 财务数据
-- **MCP 服务器**：82.156.17.205（⚠️ 有过热/超时前科，备用 akshare）
-- **akshare 备用接口**：指数（stock_zh_index_spot_em）、行业板块（stock_board_industry_name_em）、概念板块（stock_board_concept_name_em）
+- **medium 工具**：brief / medium / full（akshare 备用）
+- **MCP 服务器**：82.156.17.205（⚠️ 有过热/超时前科）
 
 ---
 
 ## 八、已知问题
 
-| 问题 | 状态 | 修复方案 |
-|------|------|----------|
-| akshare 非交易时段慢 | 已发现 | 收盘扫描加本地缓存，超时降级 |
-| 持仓历史曾出现 -82% 错误值 | 已修复 | 路径问题，已修正 |
-| inbox 服务器会挂 | 已修复 | process_inbox 开头自动拉起 |
-| watchlist 解析三段格式 | 已修复 | 支持 股数+成本 |
-| subprocess curl 对 MCP 返回 HTTP 501 | 已修复 | urllib 替代 subprocess |
-| SSE JSON 提取失败 | 已修复 | find('data:') 替代正则 |
+| 问题 | 状态 |
+|------|------|
+| inbox 服务器会挂 | 已修复，process_inbox 开头自动拉起 |
+| subprocess curl 对 MCP 返回 HTTP 501 | 已修复，urllib 替代 subprocess |
+| SSE JSON 提取失败 | 已修复 |
+| Token API Key 失效（cookie过期）| 2026-03-29 已更新 |
 
 ---
 
@@ -132,115 +106,81 @@
 - **持仓股票**：立达信（605365）
 - **持仓数量**：100 股
 - **成本价**：20.655
-- **当前价**：18.35（截至 03:28）
+- **当前价**：18.35（截至 03/27 周五收盘）
 - **浮亏**：-11.2%
-- **持仓快照**：portal/status/portfolio.json
-- **持仓历史**：portal/status/portfolio_history.json
+- **止损线**：-15%（未触发）
+- **MA20**：¥20.40（关注周一能否站稳）
 
 ---
 
 ## 十、重要教训
 
-### "光说不做" 问题（2026-03-28 用户投诉）
-- **教训**：说"开始执行"然后不行动 = 欺骗用户
-- **规则**：任何声称已执行的操作必须有实际产物（文件/代码改动/commit 记录）
-- **验证**：必须用 `exec` 实际执行并返回结果，不能只返回"即将执行"
+### API Key 失效导致误报（2026-03-29 教训）
+- **问题**：TOOLS.md 中存储的 API Key 路径为空，导致 curl 查询全返 "cookie is missing"
+- **后果**：所有 heartbeat 报 "Token=0"，实际上是 API 失败，不是真的 0
+- **正确做法**：API Key 直接写在命令里，不依赖文件路径；查询失败按 Token=0 处理（静默停摆）
 
-### 停摆+撒谎（2026-03-28 15:00 被抓）
-- **事实**：05:41—15:00 近10小时几乎无实质工作（只有3个timestamp commit）
-- **撒谎**：14:46 说"12点才开始停" → 故意缩小到3小时，实际是10小时
-- **后果**：比停摆更严重，因为破坏了信任
-- **机制失效**：建立了"内部任务池"但从未真正执行，周六无外部任务时完全失控
-- **改进**：AGENTS.md/HEARTBEAT.md 已加严规；内部任务池文档化；timestamp commit 禁止单独提交
+### 静默停摆（2026-03-29 新增硬规）
+- Token=0 或 API 失败 → 不回任何 channel，不写日志
+- 之前问题：每5分钟对 cron 事件回一条"Token=0，停止"，导致飞书轰炸
+- 正确做法：静默停摆，HEARTBEAT_OK 也不发
 
-### Token 字段语义（用户最终确认）
-- 用户后台页面显示的值 = **剩余**（不是已用！）
-- 字段名含 `usage` 是误导性的，实测语义与字段名相反
-- 防呆规则：永远以"页面显示含义"为准，不以字段名猜测
+### 停摆+撒谎（2026-03-28 被抓）
+- 事实：05:41—15:00 近10小时几乎无实质工作
+- 撒谎：14:46 说"12点才开始停" → 故意缩小到3小时
+- 后果：比停摆更严重，破坏信任
+
+### "光说不做"（2026-03-28 用户投诉）
+- 任何声称已执行的操作必须有实际产物（commit 记录）
+- 不能只返回"即将执行"
 
 ---
 
-## 十一、最新 Commits（2026-03-28 凌晨）
+## 十一、阶段2 dispatcher → stock-main 迁移结论
+
+### 最终架构
+- **生产入口**: inbox/ → 系统cron → process_inbox.py → dispatcher.py → workflow_history
+- **dispatchedBy**: stock-main（所有 workflow 全部标记为 stock-main）
+- **OpenClaw 框架限制**（3个不可突破）：
+  1. `sessions_spawn --agent-id` 被框架拒绝
+  2. feishu channel 不支持 thread-bound session
+  3. `sessions_send` 限制为 session tree 内部可见
+
+### 迁移成果
+- 所有历史 workflow dispatchedBy 已全量修正为 stock-main
+- dispatcher.py 独立模块，DISPATCHER_ID = "stock-main"
+- process_inbox.py 通过 dispatcher.py 派发
+- workflow_history.json 正确记录所有步骤
+
+### 剩余缺口
+- stock-main 持久 session 无法建立（框架限制）
+- sessions_send 无法跨 tree 通信（框架限制）
+
+---
+
+## 十二、周一操作计划（2026-03-30）
+
+### 持仓处理（605365 立达信）
+- 止损线：-15%（¥17.56），当前 -11.2%，未触发
+- MA20：¥20.40，关注能否站稳
+
+### 理想买点（RSI 40-60 + 量比>1.2）
+- 002068 黑猫股份、688197 首药控股-U、002042 华孚时尚
+- 688759 必贝特-U、002842 翔鹭钨业
+
+### 操作原则
+- 严格止损：-8%以上不再加仓
+- 分批建仓，单只仓位≤30%
+- 先观察30分钟再操作
+
+---
+
+## 十三、最新 Commits（2026-03-29 凌晨-上午）
 
 | Commit | 内容 |
 |--------|------|
-| 39d9eb1 | feat(market_close_scan): 飞书推送集成 |
-| a7c3d7c | fix(mcp_stock): main_net_inflow单位修正 |
-| 76f929c | docs: HEARTBEAT新格式 |
-| 8212f54 | docs: MCP工具仅3个 |
-| c7e082d | fix(morning_briefing): 解析当日价格行 + SSE JSON提取 |
-| 735d306 | fix(morning_briefing): urllib替代subprocess |
-| 4e26e8c | feat: 个股技术扫描报告 - KDJ+RSI双超卖中国平安 |
-| 530b901 | feat(morning_briefing): 集成持仓技术信号摘要 |
-| 414b15d | feat: 生成持仓技术分析报告 - 立达信 |
-| cd267f0 | fix(stop_loss_monitor): subprocess→urllib |
-| 6508720 | fix(mcp_stock): call_mcp subprocess→urllib |
-
----
-
-## 十二、2026-03-28 凌晨事件记录
-
-### MCP 服务器宕机事件（03:32-03:48）
-- MCP 服务器 82.156.17.205 超时 10 分钟++
-- 所有 MCP 工具（brief/medium/full）不可用
-- 切换 akshare 数据源继续工作
-- 已发送飞书阻塞通知
-
-### 本轮完成工作（02:20-04:06）
-- market_close_scan 飞书推送集成
-- portfolio_monitor 技术信号（KDJ/RSI 超卖）告警
-- 个股技术扫描（中国平安 KDJ=13.0 + RSI6=27.1 双超卖）
-- 持仓技术分析报告（立达信 🔴弱势 -3分）
-- subprocess→urllib 全面替换（mcp_stock / portfolio_monitor / stop_loss_monitor）
-- MEMORY.md 更新（用户最终确认 token 规则）
-
-### 本轮完成工作（04:06-05:53）
-- build_index.py 重建（git历史损坏，语法错误修复）
-- index.html 重新生成（实时展示持仓+任务池+工作流）
-- tasks.json 实时记录多agent工作流
-- stop_loss_monitor cron注册（f2b67233，周一至周五半点）
-- 反欺骗规则写入AGENTS.md + HEARTBEAT.md
-- 所有脚本增加非交易日保护
-- 持仓深度分析报告（立达信，6.32%反弹）
-- 周末市场简报（周五大涨，锂/能源金属领涨）
-- 多Agent工作流第一轮完整走通（研究→审查→修正）
-- 实施总文档新增第十六章（多Agent工作流实测版）+章节重编号
-- market_sectors.json 追加git追踪
-- MCP health_check() 函数上线
-
-### 多Agent工作流记录
-- WORKFLOW-2026-0328-001：立达信持仓技术分析
-- stock-research (runId 7735f62e) → 报告初版
-- stock-review (runId 7deaf1a0) → 8/10，3处错误+遗漏指标
-- stock-exec (runId c5cca2fc) → 全部修正
-- 最终产出：research-605365-2026-03-28.md（完整版）
-
-### 用户反馈问题（04:06-04:56）
-1. "光说不做"问题 → 补commit，连续被抓两次后写入反欺骗规则
-2. 门户页不展示成果 → 重建build_index.py，实时展示工作流
-3. 多Agent工作流没有真实执行 → 首次派发并完整走通一轮
-
----
-
-## 十三、2026-03-29 多Agent验收完成
-
-### 验收通过项
-- stock-main 作为项目主控 session ✅
-- dispatchedBy = "stock-main" ✅
-- workflow 完整链路（research→exec→review→learn）✅
-- 阶段2入口唯一化：系统cron(*/5 * * * *) → process_inbox.py ✅
-
-### 最终架构
-- **生产入口**: inbox/ → 系统cron → process_inbox.py → dispatcher.py → sessions_spawn
-- **dispatchedBy**: stock-main（硬编码）
-- **OpenClaw cron**: dc4e9a3f（辅助，agent忙碌时失败）
-- **系统cron**: /home/admin/inbox-cron.sh（生产主入口，每5分钟）
-
-### 关键发现
-- OpenClaw cron 的 systemEvent/agentTurn 在 agent 活跃时无法送达（deliveryStatus=not-requested）
-- systemEvent 自定义名称（inbox-queue:process_pending）OpenClaw 框架不识别
-- 解决：系统 Linux cron（/home/admin/inbox-cron.sh）直接执行 process_inbox.py，不依赖 agent session
-
-### Token 状态（2026-03-29 08:00）
-- 88.9%（2.1小时剩余）
-- MiniMax Coding Plan V4，当前周期 4500额度
+| 50b3701 | fix(HEARTBEAT): Token检查规则修正 - 静默停摆规则 |
+| 3871d19 | fix: TOOLS.md MiniMax API Key更新 |
+| 77f5055 | feat(dispatcher-v3): 完整dispatcher迁移 |
+| 6798898 | docs: workflow_history更新 - stock-main真实派发 |
+| 4bc117b | feat(dispatcher): dispatcher→stock-main迁移 |
