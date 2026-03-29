@@ -1,7 +1,7 @@
 #!/bin/bash
 # inbox-cron.sh - Linux系统cron调用入口（非OpenClaw cron）
-# 职责：每5分钟执行process_inbox.py
-# 特点：PID锁防止并发 + 绝对路径 + stdout/stderr重定向到log
+# 职责：每5分钟执行process_inbox.py + queue_processor.py
+# 特点：PID锁防止并发 + log rotation + 绝对路径
 # OpenClaw inbox cron已禁用（agent活跃时systemEvent无法送达）
 
 LOCKFILE="/tmp/inbox-cron.lock"
