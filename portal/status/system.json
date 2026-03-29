@@ -1,0 +1,115 @@
+{
+  "lastUpdated": "2026-03-29T19:41:37.239654+08:00",
+  "openclaw": {
+    "version": "2026.3.24",
+    "gitCommit": "520bfc8",
+    "node": "v24.14.0",
+    "gateway": {
+      "status": "running",
+      "pid": 7193,
+      "port": 18789,
+      "bind": "loopback"
+    },
+    "totalCommits": 108
+  },
+  "agents": {
+    "main": {
+      "status": "active",
+      "model": "MiniMax-M2.7",
+      "workspace": "/home/admin/openclaw/workspace"
+    },
+    "stock-assistant": {
+      "status": "active",
+      "agents": [
+        "stock-main",
+        "stock-research",
+        "stock-exec",
+        "stock-review",
+        "stock-learn"
+      ],
+      "workspace": "/home/admin/openclaw/workspace/stock-assistant"
+    }
+  },
+  "channels": {
+    "feishu": {
+      "status": "enabled",
+      "appId": "cli_a94e9c41cd78dcc8"
+    }
+  },
+  "plugins": {
+    "qqbot": "enabled",
+    "dingtalk-connector": "enabled",
+    "wecom-openclaw-plugin": "disabled",
+    "feishu": "enabled",
+    "minimax": "enabled"
+  },
+  "backup": {
+    "schedule": "03:00 daily",
+    "status": "scheduled",
+    "last": {
+      "time": "2026:03:25 18:49:19.487Z:openclaw:backup",
+      "file": "/home/admin/openclaw/workspace/backups/2026-03-25T18-49-19.487Z-openclaw-backup.tar.gz",
+      "status": "verified"
+    }
+  },
+  "cronJobs": {
+    "daily-backup": {
+      "schedule": "03:00 daily",
+      "status": "ok"
+    },
+    "project-self-check": {
+      "schedule": "every 5min",
+      "status": "ok"
+    },
+    "daily-market-open-scan": {
+      "schedule": "09:00 Mon-Fri",
+      "status": "ok"
+    },
+    "daily-market-close-scan": {
+      "schedule": "16:00 Mon-Fri",
+      "status": "ok"
+    }
+  },
+  "projects": {
+    "stock-assistant": {
+      "status": "active",
+      "created": "2026-03-26",
+      "phase": "阶段2 - 核心配置",
+      "dataReady": true,
+      "dataSource": "akshare 1.18.38"
+    }
+  },
+  "financeData": {
+    "akshare": "installed",
+    "version": "1.18.38",
+    "tested": {
+      "stockInfo": "✅ (MCP)",
+      "marketNews": "✅ (MCP)",
+      "historyPrice": "⚠️ (akshare网络不稳, MCP可用)"
+    }
+  },
+  "taskPool": {
+    "todo": 0,
+    "doing": 0,
+    "done": 2,
+    "blocked": 0,
+    "approval": 0
+  },
+  "workflow": {
+    "active": false,
+    "completed_task": "WORKFLOW-2026-0328-001（立达信持仓技术分析）",
+    "agents": {
+      "main": "主控（会话结束）",
+      "stock-research": "完成 ✅",
+      "stock-review": "完成 ✅ (8/10)",
+      "stock-exec": "完成 ✅"
+    }
+  },
+  "token": {
+    "remaining": 4153,
+    "total": 4500,
+    "pct": 92.3,
+    "hours": 0.3,
+    "status": "ok"
+  }
+}
