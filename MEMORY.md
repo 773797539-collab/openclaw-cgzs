@@ -1,15 +1,15 @@
 # MEMORY.md - OpenClaw 个人 AI 指挥系统
 
 **创建时间**: 2026-03-26
-**最后更新**: 2026-03-28 16:10
 
+**最后更新**: 2026-03-29 08:00
 ---
 
 ## 一、系统概述
 
 这是一个基于 OpenClaw 的个人 AI 指挥系统，当前第一业务是 A 股辅助。
 
-**Git Commit**: a0f12b7
+**Git Commit**: 9637afa
 **OpenClaw 版本**: 2026.3.24
 
 ---
@@ -219,3 +219,28 @@
 1. "光说不做"问题 → 补commit，连续被抓两次后写入反欺骗规则
 2. 门户页不展示成果 → 重建build_index.py，实时展示工作流
 3. 多Agent工作流没有真实执行 → 首次派发并完整走通一轮
+
+---
+
+## 十三、2026-03-29 多Agent验收完成
+
+### 验收通过项
+- stock-main 作为项目主控 session ✅
+- dispatchedBy = "stock-main" ✅
+- workflow 完整链路（research→exec→review→learn）✅
+- 阶段2入口唯一化：系统cron(*/5 * * * *) → process_inbox.py ✅
+
+### 最终架构
+- **生产入口**: inbox/ → 系统cron → process_inbox.py → dispatcher.py → sessions_spawn
+- **dispatchedBy**: stock-main（硬编码）
+- **OpenClaw cron**: dc4e9a3f（辅助，agent忙碌时失败）
+- **系统cron**: /home/admin/inbox-cron.sh（生产主入口，每5分钟）
+
+### 关键发现
+- OpenClaw cron 的 systemEvent/agentTurn 在 agent 活跃时无法送达（deliveryStatus=not-requested）
+- systemEvent 自定义名称（inbox-queue:process_pending）OpenClaw 框架不识别
+- 解决：系统 Linux cron（/home/admin/inbox-cron.sh）直接执行 process_inbox.py，不依赖 agent session
+
+### Token 状态（2026-03-29 08:00）
+- 88.9%（2.1小时剩余）
+- MiniMax Coding Plan V4，当前周期 4500额度
