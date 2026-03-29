@@ -9,7 +9,7 @@
 
 这是一个基于 OpenClaw 的个人 AI 指挥系统，当前第一业务是 A 股辅助。
 
-**Git Commit**: 50b3701
+**Git Commit**: b65dc71
 **OpenClaw 版本**: 2026.3.24 (cff6dc9)
 
 ---
