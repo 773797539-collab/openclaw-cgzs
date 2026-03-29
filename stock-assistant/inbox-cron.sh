@@ -1,37 +1,91 @@
 #!/bin/bash
-# inbox-cron.sh - Linux系统cron调用入口（非OpenClaw cron）
-# 职责：每5分钟执行process_inbox.py + queue_processor.py
-# 特点：PID锁防止并发 + log rotation + 绝对路径
-# OpenClaw inbox cron已禁用（agent活跃时systemEvent无法送达）
+# inbox-cron.sh - v1.2.5 灰度实施版
+set -u
 
-LOCKFILE="/tmp/inbox-cron.lock"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INBOX_DIR="$SCRIPT_DIR/tasks/inbox"
+TODO_DIR="$SCRIPT_DIR/tasks/todo"
+DOING_DIR="$SCRIPT_DIR/tasks/doing"
+DONE_DIR="$SCRIPT_DIR/tasks/done"
+FAILED_DIR="$SCRIPT_DIR/tasks/failed"
+DUPLICATES_DIR="$SCRIPT_DIR/tasks/failed/duplicates"
+
+LOGFILE="/tmp/inbox-cron.log"
 PIDFILE="/tmp/inbox-cron.pid"
 
-# PID锁：防止上一个cron还没跑完下一个又触发
+log() { echo "$(date '+%Y-%m-%d %H:%M:%S') [$$] $*" >> "$LOGFILE"; }
+
+# Log rotation
+if [ -f "$LOGFILE" ] && [ "$(wc -l < "$LOGFILE")" -gt 1000 ]; then
+    tail -n 500 "$LOGFILE" > "${LOGFILE}.tmp" && mv "${LOGFILE}.tmp" "$LOGFILE"
+fi
+
+# PID 锁
 if [ -f "$PIDFILE" ]; then
-    OLD=$(cat $PIDFILE)
-    if [ -d "/proc/$OLD" ]; then exit 0; fi
+    OLD=$(cat "$PIDFILE")
+    [ -d "/proc/$OLD" ] && { log "PID $OLD 运行中，跳过"; exit 0; }
 fi
-echo $$ > $PIDFILE
+echo $$ > "$PIDFILE"
+trap 'rm -f "$PIDFILE"' EXIT
 
-# Log rotation：超过1000行则截断保留最后500行
-LOGFILE="/tmp/inbox-cron.log"
-if [ -f "$LOGFILE" ]; then
-    LINES=$(wc -l < "$LOGFILE")
-    if [ "$LINES" -gt 1000 ]; then
-        tail -n 500 "$LOGFILE" > "${LOGFILE}.tmp" && mv "${LOGFILE}.tmp" "$LOGFILE"
-    fi
+log "inbox-cron v1.2.5 启动"
+mkdir -p "$INBOX_DIR" "$TODO_DIR" "$DOING_DIR" "$DONE_DIR" "$FAILED_DIR" "$DUPLICATES_DIR"
+
+timestamp="$(date '+%Y%m%d%H%M%S')"
+processed=0; failed=0; duplicates=0
+
+# ===== 重复检测 =====
+is_duplicate() {
+    local id="$1"
+    [ -f "$TODO_DIR/${id}.md" ] && return 0
+    [ -f "$DOING_DIR/${id}.running" ] && return 0
+    return 1
+}
+
+# ===== 扫描 inbox/ =====
+if [ -f "$(echo "$INBOX_DIR"/*.md 2>/dev/null)" ] 2>/dev/null; then
+    for file in "$INBOX_DIR"/*.md; do
+        [ -f "$file" ] || continue
+        filename="$(basename "$file")"
+        id="$(echo "$filename" | sed 's/^TASK-//;s/\.md$//')"
+
+        # 重复检测
+        if is_duplicate "$id"; then
+            if mv "$file" "$DUPLICATES_DIR/${id}-${timestamp}.failed" 2>/dev/null; then
+                log "重复隔离(mv成功): $id"
+            elif cp "$file" "$DUPLICATES_DIR/${id}-${timestamp}.failed" 2>/dev/null; then
+                rm -f "$file"; log "重复隔离(mv失败,cp成功): $id"
+            else
+                [ -f "$file" ] && mv "$file" "${file}.DUPLICATE_UNHANDLED.${timestamp}" 2>/dev/null
+                log "重复隔离失败，保留待人工: $id"
+            fi
+            duplicates=$((duplicates+1)); continue
+        fi
+
+        # 正常入队
+        if mv "$file" "$TODO_DIR/${id}.md" 2>/dev/null; then
+            log "入队: $id → $TODO_DIR/"
+            processed=$((processed+1))
+        else
+            if cp "$file" "$FAILED_DIR/${id}-${timestamp}.failed" 2>/dev/null; then
+                rm -f "$file"; log "mv失败，已copy到failed: $id"
+            else
+                [ -f "$file" ] && mv "$file" "${file}.HANDLING_REQUIRED.${timestamp}" 2>/dev/null
+                log "mv+cp均失败，保留原位待人工: $id"
+            fi
+            failed=$((failed+1))
+        fi
+    done
+else
+    log "inbox 空"
 fi
 
-exec >> /tmp/inbox-cron.log 2>&1
-echo "$(date '+%Y-%m-%d %H:%M:%S') [$$] inbox-cron start"
+# ===== inbox-disp.js 派发 =====
+INBOX_DISP="$SCRIPT_DIR/../scripts/inbox-disp.js"
+if [ -x "$(command -v node)" ] && [ -f "$INBOX_DISP" ]; then
+    result=$(node "$INBOX_DISP" 2>/dev/null)
+    [ -n "$result" ] && log "inbox-disp: $result"
+fi
 
-# 执行入口脚本
-cd /home/admin/openclaw/workspace/stock-assistant
-/usr/bin/python3 scripts/process_inbox.py
-
-# 处理 pending_stock_main.json 队列（sessions_send 方式备选）
-/usr/bin/python3 scripts/queue_processor.py
-
-echo "$(date '+%Y-%m-%d %H:%M:%S') [$$] inbox-cron done"
-rm -f $PIDFILE
+log "完成: processed=$processed failed=$failed duplicates=$duplicates"
+rm -f "$PIDFILE"
