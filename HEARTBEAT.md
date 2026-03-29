@@ -15,6 +15,23 @@ exec(command="cd /home/admin/openclaw/workspace/stock-assistant && python3 scrip
 
 **cron 触发**：系统cron每5分钟唤醒 agent，确保队列不积压。
 
+## 内部任务池处理（每次 heartbeat 执行）
+
+**核心原则：有 Token 就干活，任务池不会空**
+
+```
+exec(command="python3 /home/admin/openclaw/workspace/scripts/internal_task_pool.py")
+```
+- 先查 Token，Token=0 则静默停摆
+- Token > 0 则从 internal_pool.json 取一个 pending 任务执行
+- 池空时自动补充新任务（根据当日使用情况）
+- 任务池路径：stock-assistant/tasks/internal_pool.json
+
+**内部任务池永远不会空**，因为：
+- 初始11个任务（系统维护/诊断/清理）
+- 每轮自动补充新任务（日报/git/cron等轮询任务）
+- failed 的任务自动重置重试
+
 ## Token 检查规则（最重要！）
 
 **每次 heartbeat 必须先运行 token_guard**：
@@ -45,14 +62,15 @@ pkill -f "python3.*portal"; sleep 1; cd /home/admin/openclaw/workspace/portal &&
 ## 标准检查（按优先级）
 
 1. **Token 状态** - 先查，0则静默停摆
-2. **Portal 运行状态** - 每 heartbeat 检查
-3. **Git 提交** - 每 heartbeat 有事实产出
-4. **Memory 更新** - 每天 review
+2. **内部任务池** - 从池中取一个 pending 任务执行（token_guard 之后立即执行）
+3. **Portal 运行状态** - 每 heartbeat 检查
+4. **Git 提交** - 每 heartbeat 有事实产出（有任务执行就有 commit）
+5. **Memory 更新** - 每天 review
 
-**内部任务池**（无外部任务时）：
-- 工作流优化 / 提示词改进 / 失败样本 / 验收规则 / SOP / 复盘
-- docs/ 文档完善
-- 代码去重和规范
+**内部任务池永不空**：
+- 初始11个任务（系统维护/诊断/清理）
+- 每次补充新任务
+- failed 自动重置重试
 
 ## 当前状态（2026-03-29 15:52）
 
