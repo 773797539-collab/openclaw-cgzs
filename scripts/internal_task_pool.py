@@ -44,7 +44,7 @@ TASK_DEFINITIONS = {
     },
     "verify_json_health": {
         "name": "验证 JSON 健康度",
-        "script": f"for f in {WORKSPACE}/stock-assistant/data/*.json; do python3 -c \\\"import json; json.load(open('$f'))\\\" 2>&1 || echo BROKEN:$f; done | grep BROKEN || echo 'all_ok'",
+        "script": f"python3 {WORKSPACE}/scripts/verify_json.py",
         "desc": "检查 stock-assistant/data/ 所有 JSON 是否有效"
     },
     "dispatcher_status": {
