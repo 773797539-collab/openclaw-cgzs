@@ -1,17 +1,36 @@
 # USER.md - About Your Human
 
-_Learn about the person you're helping. Update this as you go._
+- **Name:** （待确认）
+- **What to call them:** （待确认）
+- **Pronouns:** （未知）
+- **Timezone:** Asia/Shanghai（GMT+8）
+- **Language:** 简体中文
 
-- **Name:**
-- **What to call them:**
-- **Pronouns:** _(optional)_
-- **Timezone:**
-- **Notes:**
+## 已知偏好
 
-## Context
+- **沟通风格**：简洁直接，禁止泛泛汇报，要求精确证据和四段式输出
+- **Git 规范**：运行产物不混入源码提交，合并必须干净
+- **验收标准**：明确"通过/未通过/风险/回滚"四段，不接受模糊表述
+- **静默停摆**：Token=0 时静默，不发任何消息
+- **工作时段**：凌晨深夜仍活跃（02:00+ 仍在处理）
+- **主要业务**：A 股辅助决策（持仓：立达信 605365）
+- **通知渠道**：飞书
+- **不能接受**：重复刷屏低价值汇报、commit 混入运行产物
 
-_(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)_
+## 当前项目
 
----
+- **stock-assistant**：A 股辅助 AI 系统（多 Agent 协作）
+- **portal**：任务看板展示（status/ 页面）
+- **gateway-stability-fix**：openclaw gateway 进程存活问题（进行中）
 
-The more you know, the better you can help. But remember — you're learning about a person, not building a dossier. Respect the difference.
+## 观察记录
+
+- 凌晨 01:51 仍在处理 v1.2.5 验收，对细节要求严格
+- 每次"基本通过"后仍有补充要求，习惯分阶段逼近
+- 对"停摆"问题特别敏感（曾因静默停摆误判 Token=0 而投诉）
+- 偏好用 commit 记录工作成果，每次 heartbeat 都有 commit
+
+## 待确认
+
+- 姓名/称呼
+- 持仓偏好（持有期限、止损策略等）
