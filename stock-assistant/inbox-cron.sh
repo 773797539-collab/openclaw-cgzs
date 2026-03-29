@@ -14,7 +14,15 @@ if [ -f "$PIDFILE" ]; then
 fi
 echo $$ > $PIDFILE
 
-# 重定向stdout/stderr到log
+# Log rotation：超过1000行则截断保留最后500行
+LOGFILE="/tmp/inbox-cron.log"
+if [ -f "$LOGFILE" ]; then
+    LINES=$(wc -l < "$LOGFILE")
+    if [ "$LINES" -gt 1000 ]; then
+        tail -n 500 "$LOGFILE" > "${LOGFILE}.tmp" && mv "${LOGFILE}.tmp" "$LOGFILE"
+    fi
+fi
+
 exec >> /tmp/inbox-cron.log 2>&1
 echo "$(date '+%Y-%m-%d %H:%M:%S') [$$] inbox-cron start"
 
