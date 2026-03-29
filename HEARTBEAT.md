@@ -19,11 +19,12 @@ exec(command="cd /home/admin/openclaw/workspace/stock-assistant && python3 scrip
 
 **核心原则：有 Token 就干活，任务池不会空**
 
-```
-exec(command="python3 /home/admin/openclaw/workspace/scripts/internal_task_pool.py")
+**每次 heartbeat 执行 5 个任务（批量模式）**：
+```bash
+for i in 1 2 3 4 5; do python3 /home/admin/openclaw/workspace/scripts/internal_task_pool.py; done
 ```
 - 先查 Token，Token=0 则静默停摆
-- Token > 0 则从 internal_pool.json 取一个 pending 任务执行
+- Token > 0 则从 internal_pool.json 取 5 个 pending 任务执行
 - 池空时自动补充新任务（根据当日使用情况）
 - 任务池路径：stock-assistant/tasks/internal_pool.json
 
@@ -31,6 +32,8 @@ exec(command="python3 /home/admin/openclaw/workspace/scripts/internal_task_pool.
 - 初始11个任务（系统维护/诊断/清理）
 - 每轮自动补充新任务（日报/git/cron等轮询任务）
 - failed 的任务自动重置重试
+
+**注意**：系统无 cron daemon，daemon 仅作备用。主力是每次 heartbeat 批量执行5个任务。
 
 ## Token 检查规则（最重要！）
 
