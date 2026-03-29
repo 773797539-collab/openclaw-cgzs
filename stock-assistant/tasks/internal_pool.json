@@ -126,5 +126,95 @@
     "lastRun": "2026-03-29T16:25:33.290577",
     "runCount": 1,
     "status": "done"
+  },
+  {
+    "id": "git_log_short",
+    "name": "Git历史检查",
+    "script": "cd /home/admin/openclaw/workspace && git log --oneline -20 | head -20",
+    "desc": "查看最近20条commit",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
+  },
+  {
+    "id": "crontab_check",
+    "name": "Crontab状态",
+    "script": "crontab -l 2>/dev/null | grep -v \"^#\" | head -10",
+    "desc": "检查crontab注册情况",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
+  },
+  {
+    "id": "inbox_log_tail",
+    "name": "inbox日志尾巴",
+    "script": "tail -20 /tmp/inbox-cron.log",
+    "desc": "查看最近inbox-cron执行日志",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
+  },
+  {
+    "id": "portal_api_check",
+    "name": "Portal API状态",
+    "script": "curl -s http://localhost:8081/api/status/all | python3 -c \"import sys,json; d=json.load(sys.stdin); print(\"agents:\",d.get(\"governance\",{}).get(\"agent_count\",\"?\"))\"",
+    "desc": "验证Portal API响应",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
+  },
+  {
+    "id": "disk_usage",
+    "name": "磁盘使用检查",
+    "script": "df -h / | tail -1 | awk \"{print \"使用率: \" \\$5}\"",
+    "desc": "检查磁盘使用情况",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
+  },
+  {
+    "id": "memory_usage",
+    "name": "内存使用检查",
+    "script": "free -h | grep Mem | awk \"{print \"已用: \" \\ \" / \" \\}\"",
+    "desc": "检查内存使用情况",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
+  },
+  {
+    "id": "git_diff_check",
+    "name": "Git未提交检查",
+    "script": "cd /home/admin/openclaw/workspace && git diff --stat HEAD 2>/dev/null | tail -1",
+    "desc": "检查有无未commit的更改",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
+  },
+  {
+    "id": "pending_queue_check",
+    "name": "待处理队列检查",
+    "script": "python3 -c \"import json; q=json.load(open(\"/home/admin/openclaw/workspace/stock-assistant/tasks/pending_stock_main.json\")); print(f\"待处理: {len(q)}\") if True else None\" 2>/dev/null || echo 0",
+    "desc": "检查pending队列长度",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
+  },
+  {
+    "id": "system_json_check",
+    "name": "system.json检查",
+    "script": "python3 -c \"import json; d=json.load(open(\"/home/admin/openclaw/workspace/portal/status/system.json\")); print(\"updated:\",d.get(\"lastUpdated\",\"?\")[:16])\"",
+    "desc": "检查system.json更新时间",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
+  },
+  {
+    "id": "workflow_history_stats",
+    "name": "workflow统计",
+    "script": "python3 -c \"import json; d=json.load(open(\"/home/admin/openclaw/workspace/portal/status/workflow_history.json\")); ws=d.get(\"workflows\",[]); print(f\"workflows: {len(ws)}, done: {sum(1 for w in ws if w.get(\"status\",\"\")==\"done\")}\")\"",
+    "desc": "统计workflow数量",
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
   }
 ]
