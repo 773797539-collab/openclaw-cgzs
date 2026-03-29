@@ -3,7 +3,7 @@
     "id": "update_system_json",
     "name": "更新 system.json",
     "desc": "更新门户 system.json（Token/任务池/cron状态）",
-    "lastRun": "2026-03-29T16:10:27.048310",
+    "lastRun": "2026-03-29T17:36:23.240774",
     "runCount": 1,
     "status": "done"
   },
@@ -11,7 +11,7 @@
     "id": "update_portal_index",
     "name": "重建 Portal 首页",
     "desc": "重建 Portal index.html",
-    "lastRun": "2026-03-29T16:10:34.108200",
+    "lastRun": "2026-03-29T17:36:26.475427",
     "runCount": 1,
     "status": "done"
   },
@@ -19,7 +19,7 @@
     "id": "git_status_check",
     "name": "检查 Git 状态",
     "desc": "检查工作区是否干净，有无未提交",
-    "lastRun": "2026-03-29T16:10:34.149476",
+    "lastRun": "2026-03-29T17:36:27.385083",
     "runCount": 1,
     "status": "done"
   },
@@ -27,7 +27,7 @@
     "id": "clean_pycache",
     "name": "清理 __pycache__",
     "desc": "清理所有 Python 缓存文件",
-    "lastRun": "2026-03-29T16:10:34.194738",
+    "lastRun": "2026-03-29T17:36:28.295072",
     "runCount": 1,
     "status": "done"
   },
@@ -35,15 +35,15 @@
     "id": "verify_json_health",
     "name": "验证 JSON 健康度",
     "desc": "检查 stock-assistant/data/ 所有 JSON 是否有效",
-    "lastRun": "2026-03-29T16:23:32.368515",
-    "runCount": 2,
+    "lastRun": "2026-03-29T17:36:32.727493",
+    "runCount": 1,
     "status": "done"
   },
   {
     "id": "dispatcher_status",
     "name": "检查 Dispatcher 状态",
     "desc": "检查 dispatcher workflow_history 状态",
-    "lastRun": "2026-03-29T16:11:04.511659",
+    "lastRun": "2026-03-29T17:36:33.708960",
     "runCount": 1,
     "status": "done"
   },
@@ -51,7 +51,7 @@
     "id": "process_pending_queue",
     "name": "处理待分发队列",
     "desc": "处理 pending_stock_main.json 中的积压任务",
-    "lastRun": "2026-03-29T16:11:56.497310",
+    "lastRun": "2026-03-29T17:36:33.770284",
     "runCount": 1,
     "status": "done"
   },
@@ -59,7 +59,7 @@
     "id": "update_memory",
     "name": "更新 MEMORY.md 时间戳",
     "desc": "将 MEMORY.md 当前时间戳更新并 commit",
-    "lastRun": "2026-03-29T16:11:56.538965",
+    "lastRun": "2026-03-29T17:36:33.809444",
     "runCount": 1,
     "status": "done"
   },
@@ -67,7 +67,7 @@
     "id": "git_fetch_rebase",
     "name": "Git fetch + rebase",
     "desc": "同步远程更改",
-    "lastRun": "2026-03-29T16:11:57.600655",
+    "lastRun": "2026-03-29T17:36:34.799070",
     "runCount": 1,
     "status": "done"
   },
@@ -75,7 +75,7 @@
     "id": "verify_cron_jobs",
     "name": "验证 Cron 任务注册",
     "desc": "检查 market_open/close、morning_briefing、inbox cron 是否注册",
-    "lastRun": "2026-03-29T16:12:18.877570",
+    "lastRun": "2026-03-29T17:36:41.040375",
     "runCount": 1,
     "status": "done"
   },
@@ -83,7 +83,7 @@
     "id": "clean_workflow_history",
     "name": "清理过期 workflow 历史",
     "desc": "删除 2026-03-26 的过期 workflow 记录（保留近期的）",
-    "lastRun": "2026-03-29T16:12:18.936494",
+    "lastRun": "2026-03-29T17:36:41.484734",
     "runCount": 1,
     "status": "done"
   },
@@ -91,7 +91,7 @@
     "id": "daily_status_report",
     "name": "daily_status 日报",
     "desc": "运行daily_status.py写入日报",
-    "lastRun": "2026-03-29T16:25:21.908100",
+    "lastRun": "2026-03-29T17:36:42.782444",
     "runCount": 1,
     "status": "done"
   },
@@ -99,120 +99,30 @@
     "id": "cron_health_run",
     "name": "cron 健康检查",
     "desc": "实际运行cron健康检查",
-    "lastRun": "2026-03-29T16:25:26.610847",
-    "runCount": 1,
-    "status": "done"
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
   },
   {
     "id": "diag_system",
     "name": "全系统诊断",
     "desc": "运行diag.py全系统诊断",
-    "lastRun": "2026-03-29T16:25:26.682704",
-    "runCount": 1,
-    "status": "done"
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
   },
   {
     "id": "git_commits_summary",
     "name": "当日Git提交汇总",
     "desc": "汇总当日git commits",
-    "lastRun": "2026-03-29T16:25:33.201731",
-    "runCount": 1,
-    "status": "done"
+    "lastRun": null,
+    "runCount": 0,
+    "status": "pending"
   },
   {
     "id": "portal_rebuild",
     "name": "Portal重建",
     "desc": "重建Portal首页",
-    "lastRun": "2026-03-29T16:25:33.290577",
-    "runCount": 1,
-    "status": "done"
-  },
-  {
-    "id": "git_log_short",
-    "name": "Git历史检查",
-    "script": "cd /home/admin/openclaw/workspace && git log --oneline -20 | head -20",
-    "desc": "查看最近20条commit",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
-  },
-  {
-    "id": "crontab_check",
-    "name": "Crontab状态",
-    "script": "crontab -l 2>/dev/null | grep -v \"^#\" | head -10",
-    "desc": "检查crontab注册情况",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
-  },
-  {
-    "id": "inbox_log_tail",
-    "name": "inbox日志尾巴",
-    "script": "tail -20 /tmp/inbox-cron.log",
-    "desc": "查看最近inbox-cron执行日志",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
-  },
-  {
-    "id": "portal_api_check",
-    "name": "Portal API状态",
-    "script": "curl -s http://localhost:8081/api/status/all | python3 -c \"import sys,json; d=json.load(sys.stdin); print(\"agents:\",d.get(\"governance\",{}).get(\"agent_count\",\"?\"))\"",
-    "desc": "验证Portal API响应",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
-  },
-  {
-    "id": "disk_usage",
-    "name": "磁盘使用检查",
-    "script": "df -h / | tail -1 | awk \"{print \"使用率: \" \\$5}\"",
-    "desc": "检查磁盘使用情况",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
-  },
-  {
-    "id": "memory_usage",
-    "name": "内存使用检查",
-    "script": "free -h | grep Mem | awk \"{print \"已用: \" \\ \" / \" \\}\"",
-    "desc": "检查内存使用情况",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
-  },
-  {
-    "id": "git_diff_check",
-    "name": "Git未提交检查",
-    "script": "cd /home/admin/openclaw/workspace && git diff --stat HEAD 2>/dev/null | tail -1",
-    "desc": "检查有无未commit的更改",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
-  },
-  {
-    "id": "pending_queue_check",
-    "name": "待处理队列检查",
-    "script": "python3 -c \"import json; q=json.load(open(\"/home/admin/openclaw/workspace/stock-assistant/tasks/pending_stock_main.json\")); print(f\"待处理: {len(q)}\") if True else None\" 2>/dev/null || echo 0",
-    "desc": "检查pending队列长度",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
-  },
-  {
-    "id": "system_json_check",
-    "name": "system.json检查",
-    "script": "python3 -c \"import json; d=json.load(open(\"/home/admin/openclaw/workspace/portal/status/system.json\")); print(\"updated:\",d.get(\"lastUpdated\",\"?\")[:16])\"",
-    "desc": "检查system.json更新时间",
-    "lastRun": null,
-    "runCount": 0,
-    "status": "pending"
-  },
-  {
-    "id": "workflow_history_stats",
-    "name": "workflow统计",
-    "script": "python3 -c \"import json; d=json.load(open(\"/home/admin/openclaw/workspace/portal/status/workflow_history.json\")); ws=d.get(\"workflows\",[]); print(f\"workflows: {len(ws)}, done: {sum(1 for w in ws if w.get(\"status\",\"\")==\"done\")}\")\"",
-    "desc": "统计workflow数量",
     "lastRun": null,
     "runCount": 0,
     "status": "pending"

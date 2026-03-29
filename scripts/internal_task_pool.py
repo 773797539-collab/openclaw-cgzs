@@ -126,6 +126,9 @@ def save_pool(pool):
         json.dump(pool, f, ensure_ascii=False, indent=2)
 
 def run_task(task_id):
+    if task_id not in TASK_DEFINITIONS:
+        print(f"[Internal Task] 跳过未知任务: {task_id}", flush=True)
+        return True  # 不阻塞，标记完成
     info = TASK_DEFINITIONS[task_id]
     print(f"[Internal Task] 执行: {info['name']} - {info['desc']}", flush=True)
     try:
