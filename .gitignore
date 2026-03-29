@@ -3,3 +3,10 @@ __pycache__/
 *.pyo
 stock-assistant/data/market_sectors.json
 logs/
+
+# Running products (never commit)
+portal/status/*.json
+stock-assistant/tasks/internal_pool.json
+stock-assistant/reports/*.log
+stock-assistant/tasks/.pending_dispatch.json
+
