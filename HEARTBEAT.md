@@ -13,7 +13,7 @@
 exec(command="cd /home/admin/openclaw/workspace/stock-assistant && python3 scripts/process_inbox.py 2>&1")
 ```
 
-**cron 触发**：inbox-to-stock-main cron（id: dc4e9a3f）每5分钟唤醒 agent，确保队列不会积压太久。
+**cron 触发**：系统cron每5分钟（OpenClaw inbox cron已禁用）【已禁用】唤醒 agent，确保队列不会积压太久。
 
 
 
@@ -61,8 +61,8 @@ backups/：已清理到1个文件(301MB)，释放170MB
 
 ## 今日状态（2026-03-29）
 
-**Token**: 86.3%（1.6小时剩余）✅
-**Git**: master已同步（9e0f705）
+**Token**: 85.7%（1.5小时剩余）✅
+**Git**: master已同步（c5245df）
 **系统cron**: process_inbox.py 每5分钟 ✅
 **Portal**: 正常
 **workflow**: 19条完成，0条进行中
