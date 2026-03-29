@@ -84,7 +84,7 @@ fi
 INBOX_DISP="$SCRIPT_DIR/../scripts/inbox-disp.js"
 if [ -x "$(command -v node)" ] && [ -f "$INBOX_DISP" ]; then
     result=$(node "$INBOX_DISP" 2>/dev/null)
-    [ -n "$result" ] && log "inbox-disp: $result"
+    log "inbox-disp: ${result:-empty}"
 fi
 
 log "完成: processed=$processed failed=$failed duplicates=$duplicates"
