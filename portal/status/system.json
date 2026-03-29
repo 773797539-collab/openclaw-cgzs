@@ -1,8 +1,8 @@
 {
-  "lastUpdated": "2026-03-28T15:26:31.794043+08:00",
+  "lastUpdated": "2026-03-29T08:07:25+08:00",
   "openclaw": {
     "version": "2026.3.24",
-    "gitCommit": "d72de2d",
+    "gitCommit": "216fe6e",
     "node": "v24.14.0",
     "gateway": {
       "status": "running",
