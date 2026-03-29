@@ -51,8 +51,8 @@ def load_pool():
 def save_pool(pool):
     with open(POOL_FILE, "w") as f:
         json.dump(pool, f, ensure_ascii=False, indent=2)
-        f.write("
-")
+        f.write("\n")
+
 
 def do_task(task):
     ttype = task.get("type", "unknown")
