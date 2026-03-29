@@ -17,19 +17,21 @@ exec(command="cd /home/admin/openclaw/workspace/stock-assistant && python3 scrip
 
 ## Token 检查规则（最重要！）
 
-**每次 heartbeat 必须先查 Token**：
-```bash
-curl -s 'https://www.minimaxi.com/v1/api/openplatform/coding_plan/remains' \
-  -H 'Authorization: Bearer sk-cp-B-h-RjQvCGBUCL42doqN1zKJMqhUx1McK-23ceE0nk7WAkHVzqby80U9S2TL6fjQUTolm7aobtX9squzXW5Vsoc-mUYK32RS9ohNwmruEg6vcfU0TjPjTi0' \
-  -H 'Content-Type: application/json'
+**每次 heartbeat 必须先运行 token_guard**：
+```python
+# heartbeat 开头必须先调用
+import sys
+sys.path.insert(0, '/home/admin/openclaw/workspace/scripts')
+from heartbeat_token_guard import check_token
+if not check_token():
+    exit(0)  # 静默停摆，HEARTBEAT_OK也不发
 ```
-从 model_remains 找 MiniMax-M* 的 current_interval_usage_count（=剩余）和 current_interval_total_count（=总额）
 
-**Token=0 或 API 失败时：静默停摆，不发任何消息到任何渠道！**
-- 不回 Feishu
-- 不回任何 channel
-- 不记录日志（避免触发更多调用）
-- 直接返回 HEARTBEAT_OK
+**token_guard 内部逻辑**：
+1. 调用 MiniMax API 查 Token
+2. 找到 MiniMax-M* 的 usage_count（=剩余）和 total_count（=总额）
+3. remaining > 0 → 打印状态，继续工作
+4. remaining = 0 或 API 失败 → **静默停摆**，不发任何消息
 
 ## Portal 健康检查
 ```bash
