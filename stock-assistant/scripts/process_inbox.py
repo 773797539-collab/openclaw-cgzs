@@ -25,8 +25,9 @@ QUEUE_FILE     = "/home/admin/openclaw/workspace/stock-assistant/tasks/pending_s
 WORKSPACE      = "/home/admin/openclaw/workspace"
 DISPATCHER     = "/home/admin/openclaw/workspace/stock-assistant/scripts/dispatcher.py"
 
-# stock-main session key（首次 sessions_send 后由 main agent 更新）
-STOCK_MAIN_SESSION = "agent:stock-main:main"
+# stock-main session key（当前无可用持久session，通过dispatcher.py直接派发）
+# sessions_spawn在main上下文执行，dispatcher.py保证dispatchedBy=stock-main
+STOCK_MAIN_SESSION = None
 
 COMPLEX_KEYWORDS = ["分析","研究","策略","规划","设计","回测","搭建","实现","系统","对比","review"]
 SIMPLE_KEYWORDS  = ["查","看","检查","更新","记录","刷新","关闭","完成"]

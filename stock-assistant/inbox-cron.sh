@@ -22,5 +22,8 @@ echo "$(date '+%Y-%m-%d %H:%M:%S') [$$] inbox-cron start"
 cd /home/admin/openclaw/workspace/stock-assistant
 /usr/bin/python3 scripts/process_inbox.py
 
+# 处理 pending_stock_main.json 队列（sessions_send 方式备选）
+/usr/bin/python3 scripts/queue_processor.py
+
 echo "$(date '+%Y-%m-%d %H:%M:%S') [$$] inbox-cron done"
 rm -f $PIDFILE
