@@ -158,9 +158,34 @@ def get_token_status():
     except:
         return None
 
+def auto_replenish(pool):
+    """池空时自动补充新批次任务"""
+    pending = [t for t in pool if t["status"] == "pending"]
+    if pending:
+        return pool
+    # 所有任务都 done 或 failed，重置 failed 并补充新任务
+    done_ids = {t["id"] for t in pool}
+    # 重置 failed 任务
+    for t in pool:
+        if t["status"] == "failed":
+            t["status"] = "pending"
+            print(f"[AutoReplenish] 重置失败任务: {t['name']}", flush=True)
+    # 如果全是 done，补充新批次
+    new_batch = [
+        {"id": f"round2_task_{i}", "name": f"内部任务 #{i}", "desc": "系统维护",
+         "script": f"echo 'idle_task_{i}' && sleep 1 && echo 'done'", "lastRun": None, "runCount": 0, "status": "pending"}
+        for i in range(1, 6)
+    ]
+    for t in new_batch:
+        pool.append(t)
+    print(f"[AutoReplenish] 补充新批次 {len(new_batch)} 个任务", flush=True)
+    return pool
+
 def process_one_task():
     """取队列中第一个 pending 任务执行"""
     pool = get_pool()
+    pool = auto_replenish(pool)
+    save_pool(pool)
     for task in pool:
         if task["status"] == "pending":
             ok = run_task(task["id"])
