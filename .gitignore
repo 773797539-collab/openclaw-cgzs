@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 *.pyo
 stock-assistant/data/market_sectors.json
+logs/
