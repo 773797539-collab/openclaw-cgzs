@@ -54,17 +54,20 @@ pkill -f "python3.*portal"; sleep 1; cd /home/admin/openclaw/workspace/portal &&
 - docs/ 文档完善
 - 代码去重和规范
 
-## 当前状态（2026-03-29 15:22）
+## 当前状态（2026-03-29 15:52）
 
 ```
-Token：4500/4500（100%），约4.6小时 ✨新周期
+Token：4458/4500（99.1%），约4.1小时
 Portal：✅ 正常（5 agents）
 持仓：立达信 605365，¥18.35，浮亏-11.2%
 今日：周日休市，下一工作日周一09:30
-Git：29b2db2
+Git：9362281（96条）
 工作区：干净
 队列：0条待处理
+taskPool：todo=0 doing=0 done=2 blocked=0
 系统：健康
+cron：4个（周一至五，market-open/close + morning + inbox）
+最近commit：dispatcher迁移决策文档
 ```
 
 ## Token汇报格式
