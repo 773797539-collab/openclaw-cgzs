@@ -76,6 +76,31 @@ TASK_DEFINITIONS = {
         "name": "清理过期 workflow 历史",
         "script": f"python3 -c \"import json; d=json.load(open('{WORKSPACE}/portal/status/workflow_history.json')); stale=[w for w in d.get('workflows',[]) if w.get('status')=='completed' and 'WORKFLOW-2026-0326' in w.get('id','')]; print(f'清理{{len(stale)}}条过期workflow'); d['workflows']=[w for w in d.get('workflows',[]) if w not in stale]; open('{WORKSPACE}/portal/status/workflow_history.json','w').write(json.dumps(d,ensure_ascii=False,indent=2))\"",
         "desc": "删除 2026-03-26 的过期 workflow 记录（保留近期的）"
+    },
+    "daily_status_report": {
+        "name": "daily_status 日报",
+        "script": f"python3 {WORKSPACE}/scripts/daily_status.py >> {WORKSPACE}/stock-assistant/reports/daily-$(date +%Y-%m-%d).log 2>&1 && echo daily_report_ok",
+        "desc": "运行 daily_status.py 写入日报 log"
+    },
+    "cron_health_run": {
+        "name": "cron 健康检查运行",
+        "script": f"timeout 30 python3 {WORKSPACE}/stock-assistant/scripts/cron_health_check.py 2>&1 | head -30",
+        "desc": "实际运行 cron 健康检查"
+    },
+    "diag_system": {
+        "name": "全系统诊断",
+        "script": f"python3 {WORKSPACE}/stock-assistant/scripts/diag.py 2>&1 | tail -30",
+        "desc": "运行 diag.py 全系统诊断"
+    },
+    "git_commits_summary": {
+        "name": "当日 Git 提交汇总",
+        "script": f"cd {WORKSPACE} && git log --oneline --since='8 hours ago' | head -20",
+        "desc": "汇总当日 git commits"
+    },
+    "portal_rebuild": {
+        "name": "Portal 重建",
+        "script": f"cd {WORKSPACE}/portal && python3 build_index.py && echo portal_rebuilt",
+        "desc": "重建 Portal 首页"
     }
 }
 

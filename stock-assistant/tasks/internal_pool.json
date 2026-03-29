@@ -35,9 +35,9 @@
     "id": "verify_json_health",
     "name": "验证 JSON 健康度",
     "desc": "检查 stock-assistant/data/ 所有 JSON 是否有效",
-    "lastRun": "2026-03-29T16:11:04.408059",
-    "runCount": 1,
-    "status": "failed"
+    "lastRun": "2026-03-29T16:23:32.368515",
+    "runCount": 2,
+    "status": "done"
   },
   {
     "id": "dispatcher_status",
@@ -84,6 +84,46 @@
     "name": "清理过期 workflow 历史",
     "desc": "删除 2026-03-26 的过期 workflow 记录（保留近期的）",
     "lastRun": "2026-03-29T16:12:18.936494",
+    "runCount": 1,
+    "status": "done"
+  },
+  {
+    "id": "daily_status_report",
+    "name": "daily_status 日报",
+    "desc": "运行daily_status.py写入日报",
+    "lastRun": "2026-03-29T16:25:21.908100",
+    "runCount": 1,
+    "status": "done"
+  },
+  {
+    "id": "cron_health_run",
+    "name": "cron 健康检查",
+    "desc": "实际运行cron健康检查",
+    "lastRun": "2026-03-29T16:25:26.610847",
+    "runCount": 1,
+    "status": "done"
+  },
+  {
+    "id": "diag_system",
+    "name": "全系统诊断",
+    "desc": "运行diag.py全系统诊断",
+    "lastRun": "2026-03-29T16:25:26.682704",
+    "runCount": 1,
+    "status": "done"
+  },
+  {
+    "id": "git_commits_summary",
+    "name": "当日Git提交汇总",
+    "desc": "汇总当日git commits",
+    "lastRun": "2026-03-29T16:25:33.201731",
+    "runCount": 1,
+    "status": "done"
+  },
+  {
+    "id": "portal_rebuild",
+    "name": "Portal重建",
+    "desc": "重建Portal首页",
+    "lastRun": "2026-03-29T16:25:33.290577",
     "runCount": 1,
     "status": "done"
   }
