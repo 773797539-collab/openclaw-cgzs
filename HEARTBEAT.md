@@ -74,3 +74,29 @@ Token: 剩余A/B=A%, 已用(B-A)/B=B%  ✅/⚠️/❌
 4. Portal API 无响应
 
 **静默停摆 = 不回复任何 channel，不写日志，只记录 HEARTBEAT_OK**
+
+## 当前状态（2026-03-31 02:40）
+
+```
+Token：4118/4500（91.5%），已用8.5%，充足
+Portal：✅ 正常（5 agents）
+持仓：立达信 605365，¥18.35，-11.2%，NEAR_STOP_LOSS
+观察池：002042 华孚时尚，status=scanned
+done：7个真实结论（持仓扫描 + 观察池扫描）
+Git：377841e（最新commit）
+task_executor：Path import已修复，运行正常
+系统：健康
+```
+
+## 阶段6完成标志
+
+**已接通**：
+- add-holding → inbox任务 → todo → doing → execute_portfolio_scan → 回写holdings.json → done
+- add-watch → inbox任务 → todo → doing → execute_portfolio_scan → 回写watchlist.json → done
+- execute_portfolio_scan 真实运行（无NameError）
+- done记录有真实业务结论（持仓风险/观察池扫描）
+
+**done口径（严格执行）**：
+- execute_diagnostic → {} → 不进done
+- execute_lightweight → None → 不进done
+- execute_portfolio_scan → 真实结论dict → 进done
