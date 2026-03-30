@@ -6,6 +6,7 @@ task_executor.py - 持续自驱任务执行器
 """
 import os, json, subprocess, time, sys
 from datetime import datetime
+from pathlib import Path
 
 WORKSPACE      = "/home/admin/openclaw/workspace"
 STOCK_WS      = f"{WORKSPACE}/stock-assistant"
