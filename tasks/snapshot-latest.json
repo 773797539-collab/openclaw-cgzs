@@ -1,0 +1,331 @@
+{
+  "todo": [
+    {
+      "id": "sys-diag-1774853525436",
+      "file": "sys-diag-1774853525436.md",
+      "modified": "2026-03-30T06:52:05.430Z",
+      "status": "pending",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T06:52:05.436Z"
+    },
+    {
+      "id": "sys-diag-1774862525726",
+      "file": "sys-diag-1774862525726.md",
+      "modified": "2026-03-30T09:22:05.723Z",
+      "status": "pending",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T09:22:05.726Z"
+    }
+  ],
+  "doing": [],
+  "done": [
+    {
+      "id": "growth-cleanup-1774819153360",
+      "file": "growth-cleanup-1774819153360.md",
+      "modified": "2026-03-29T21:19:13.506Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T21:19:13.361Z"
+    },
+    {
+      "id": "growth-cleanup-1774819175541",
+      "file": "growth-cleanup-1774819175541.md",
+      "modified": "2026-03-29T21:19:35.583Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T21:19:35.542Z"
+    },
+    {
+      "id": "growth-cleanup-1774819442600",
+      "file": "growth-cleanup-1774819442600.md",
+      "modified": "2026-03-29T21:24:08.711Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T21:24:02.600Z"
+    },
+    {
+      "id": "growth-cleanup-1774822075998",
+      "file": "growth-cleanup-1774822075998.md",
+      "modified": "2026-03-29T22:08:10.761Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T22:07:55.998Z"
+    },
+    {
+      "id": "growth-cleanup-1774822175855",
+      "file": "growth-cleanup-1774822175855.md",
+      "modified": "2026-03-29T22:35:57.778Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T22:09:35.855Z"
+    },
+    {
+      "id": "growth-cleanup-1774823806827",
+      "file": "growth-cleanup-1774823806827.md",
+      "modified": "2026-03-29T22:36:56.937Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T22:36:46.827Z"
+    },
+    {
+      "id": "growth-cleanup-1774829670404",
+      "file": "growth-cleanup-1774829670404.md",
+      "modified": "2026-03-30T00:14:36.218Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T00:14:30.404Z"
+    },
+    {
+      "id": "growth-cleanup-1774839165205",
+      "file": "growth-cleanup-1774839165205.md",
+      "modified": "2026-03-30T02:53:01.347Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T02:52:45.205Z"
+    },
+    {
+      "id": "growth-cleanup-1774851992685",
+      "file": "growth-cleanup-1774851992685.md",
+      "modified": "2026-03-30T06:26:32.682Z",
+      "status": "pending",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T06:26:32.685Z"
+    },
+    {
+      "id": "growth-diag-1774819153360",
+      "file": "growth-diag-1774819153360.md",
+      "modified": "2026-03-29T21:19:13.574Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T21:19:13.360Z"
+    },
+    {
+      "id": "growth-diag-1774819175541",
+      "file": "growth-diag-1774819175541.md",
+      "modified": "2026-03-29T21:19:35.627Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T21:19:35.541Z"
+    },
+    {
+      "id": "growth-diag-1774819442600",
+      "file": "growth-diag-1774819442600.md",
+      "modified": "2026-03-29T21:25:09.781Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T21:24:02.600Z"
+    },
+    {
+      "id": "growth-diag-1774822075998",
+      "file": "growth-diag-1774822075998.md",
+      "modified": "2026-03-29T22:08:10.833Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T22:07:55.998Z"
+    },
+    {
+      "id": "growth-diag-1774822175855",
+      "file": "growth-diag-1774822175855.md",
+      "modified": "2026-03-29T22:36:10.143Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T22:09:35.855Z"
+    },
+    {
+      "id": "growth-diag-1774823806827",
+      "file": "growth-diag-1774823806827.md",
+      "modified": "2026-03-29T22:38:12.036Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T22:36:46.827Z"
+    },
+    {
+      "id": "growth-diag-1774829670404",
+      "file": "growth-diag-1774829670404.md",
+      "modified": "2026-03-30T00:14:47.066Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T00:14:30.404Z"
+    },
+    {
+      "id": "growth-diag-1774839165205",
+      "file": "growth-diag-1774839165205.md",
+      "modified": "2026-03-30T02:53:38.680Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T02:52:45.205Z"
+    },
+    {
+      "id": "growth-diag-1774851992685",
+      "file": "growth-diag-1774851992685.md",
+      "modified": "2026-03-30T06:26:32.682Z",
+      "status": "pending",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T06:26:32.685Z"
+    },
+    {
+      "id": "growth-repo-1774819153360",
+      "file": "growth-repo-1774819153360.md",
+      "modified": "2026-03-29T21:19:13.626Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T21:19:13.361Z"
+    },
+    {
+      "id": "growth-repo-1774819175541",
+      "file": "growth-repo-1774819175541.md",
+      "modified": "2026-03-29T21:20:53.726Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T21:19:35.542Z"
+    },
+    {
+      "id": "growth-repo-1774819442600",
+      "file": "growth-repo-1774819442600.md",
+      "modified": "2026-03-29T22:06:27.533Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T21:24:02.601Z"
+    },
+    {
+      "id": "growth-repo-1774822075998",
+      "file": "growth-repo-1774822075998.md",
+      "modified": "2026-03-29T22:08:37.030Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T22:07:55.999Z"
+    },
+    {
+      "id": "growth-repo-1774822175855",
+      "file": "growth-repo-1774822175855.md",
+      "modified": "2026-03-29T22:36:46.773Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T22:09:35.855Z"
+    },
+    {
+      "id": "growth-repo-1774823806827",
+      "file": "growth-repo-1774823806827.md",
+      "modified": "2026-03-29T22:38:21.176Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-29T22:36:46.828Z"
+    },
+    {
+      "id": "growth-repo-1774829670404",
+      "file": "growth-repo-1774829670404.md",
+      "modified": "2026-03-30T00:47:21.612Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T00:14:30.404Z"
+    },
+    {
+      "id": "growth-repo-1774839165205",
+      "file": "growth-repo-1774839165205.md",
+      "modified": "2026-03-30T04:22:02.898Z",
+      "status": "done",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T02:52:45.206Z"
+    },
+    {
+      "id": "sys-cleanup-1774852235604",
+      "file": "sys-cleanup-1774852235604.md",
+      "modified": "2026-03-30T06:30:35.600Z",
+      "status": "pending",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T06:30:35.604Z"
+    },
+    {
+      "id": "sys-cleanup-1774852235849",
+      "file": "sys-cleanup-1774852235849.md",
+      "modified": "2026-03-30T06:30:35.844Z",
+      "status": "pending",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T06:30:35.849Z"
+    },
+    {
+      "id": "sys-cleanup-1774852485238",
+      "file": "sys-cleanup-1774852485238.md",
+      "modified": "2026-03-30T06:34:45.235Z",
+      "status": "pending",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T06:34:45.238Z"
+    },
+    {
+      "id": "sys-cleanup-1774852602002",
+      "file": "sys-cleanup-1774852602002.md",
+      "modified": "2026-03-30T06:37:34.294Z",
+      "status": "done"
+    },
+    {
+      "id": "sys-diag-1774852235604",
+      "file": "sys-diag-1774852235604.md",
+      "modified": "2026-03-30T06:30:35.600Z",
+      "status": "pending",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T06:30:35.604Z"
+    },
+    {
+      "id": "sys-diag-1774852235848",
+      "file": "sys-diag-1774852235848.md",
+      "modified": "2026-03-30T06:30:35.844Z",
+      "status": "pending",
+      "agent": "system",
+      "priority": "low",
+      "created": "2026-03-30T06:30:35.848Z"
+    },
+    {
+      "id": "sys-diag-1774852602002",
+      "file": "sys-diag-1774852602002.md",
+      "modified": "2026-03-30T06:38:00.835Z",
+      "status": "done"
+    },
+    {
+      "id": "sys-diag-1774852654183",
+      "file": "sys-diag-1774852654183.md",
+      "modified": "2026-03-30T06:52:08.526Z",
+      "status": "done"
+    },
+    {
+      "id": "sys-diag-1774852677739",
+      "file": "sys-diag-1774852677739.md",
+      "modified": "2026-03-30T09:22:08.859Z",
+      "status": "done"
+    }
+  ],
+  "blocked": [],
+  "approval": [],
+  "lastUpdated": "2026-03-30T09:26:23.481Z"
+}
