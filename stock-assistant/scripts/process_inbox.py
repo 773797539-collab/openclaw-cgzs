@@ -118,7 +118,17 @@ def main():
 
     inbox_files = sorted([f for f in os.listdir(INBOX_DIR) if f.endswith(".md")])
     if not inbox_files:
-        print(f"[{ts}] inbox空，队列无积压", flush=True)
+        print(f"[{ts}] inbox空，触发 inbox-disp.js 补货", flush=True)
+        # inbox 空时，调用 inbox-disp.js 执行补货逻辑
+        disp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "scripts", "inbox-disp.js")
+        try:
+            r = subprocess.run(["node", disp_path], capture_output=True, text=True, timeout=30)
+            if r.stdout.strip():
+                result = json.loads(r.stdout.strip())
+                print(f"[{ts}] inbox-disp: {result.get('action')} {result.get('taskType','')} {result.get('taskId','')}", flush=True)
+                return result
+        except Exception as e:
+            print(f"[{ts}] inbox-disp 调用失败: {e}", flush=True)
         return {"action": "idle"}
 
     tasks = load_pending()

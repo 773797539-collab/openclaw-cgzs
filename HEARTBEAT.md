@@ -3,7 +3,9 @@
 ## 入口路由规则
 
 **入口**：`inbox/` 目录下的 .md 文件
-**处理**：每次 heartbeat 执行 `process_inbox.py`，它扫描 inbox 并通过 `dispatcher.py` 派发任务
+**处理**：每次 heartbeat 执行：
+1. `process_inbox.py` → 扫描 inbox，空时调用 `inbox-disp.js` 补货到 todo≥3，dispatch 到 doing
+2. `task_executor.py` → 从 doing 执行真实任务，写真实结果到 done（最多3轮）
 **dispatchedBy**：dispatcher.py 内部硬编码为 "stock-main"
 
 ## Pending 队列处理（每次 heartbeat 执行）
@@ -17,16 +19,19 @@ exec(command="cd /home/admin/openclaw/workspace/stock-assistant && python3 scrip
 
 ## 内部任务池处理（每次 heartbeat 执行）
 
-**核心原则：有 Token 就干活，任务池不会空**
+**核心原则：有 Token 就干活，doing 有任务就执行，不空转**
 
-**每次 heartbeat 执行 5 个任务（批量模式）**：
+**每次 heartbeat 执行**：
 ```bash
-for i in 1 2 3 4 5; do python3 /home/admin/openclaw/workspace/scripts/internal_task_pool.py; done
+# 1. 补货 + dispatch（inbox → todo → doing）
+python3 /home/admin/openclaw/workspace/stock-assistant/scripts/process_inbox.py
+
+# 2. 执行 doing 中的真实任务（最多3轮）
+for i in 1 2 3; do python3 /home/admin/openclaw/workspace/scripts/task_executor.py; done
 ```
 - 先查 Token，Token=0 则静默停摆
-- Token > 0 则从 internal_pool.json 取 5 个 pending 任务执行
-- 池空时自动补充新任务（根据当日使用情况）
-- 任务池路径：stock-assistant/tasks/internal_pool.json
+- process_inbox.py：inbox 空时从 8 类保底模板补货到 todo≥3，dispatch 到 doing
+- task_executor.py：从 doing 取任务执行，写真实结果到 done/
 
 **内部任务池永远不会空**，因为：
 - 初始11个任务（系统维护/诊断/清理）
