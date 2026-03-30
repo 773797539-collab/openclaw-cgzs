@@ -10,3 +10,5 @@ stock-assistant/tasks/internal_pool.json
 stock-assistant/reports/*.log
 stock-assistant/tasks/.pending_dispatch.json
 
+tasks/done/
+tasks/doing/
