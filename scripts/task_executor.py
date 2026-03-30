@@ -553,3 +553,21 @@ if __name__ == "__main__":
     count = run_batch()
     log(f"本轮执行 {count} 个任务，退出")
     sys.exit(0)
+
+# ===== 进程锁：防止多实例 =====
+LOCK_FILE = "/tmp/task_executor.lock"
+def acquire_lock():
+    import fcntl
+    try:
+        fd = open(LOCK_FILE, 'w')
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        fd.write(str(os.getpid()))
+        fd.flush()
+        return fd
+    except (IOError, OSError):
+        return None
+
+lock_fd = acquire_lock()
+if lock_fd is None:
+    print("[task_exec] 已有实例在运行，退出")
+    sys.exit(0)
