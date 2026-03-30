@@ -343,6 +343,32 @@ def move_to_done(task_id, content, result_data=None):
             os.unlink(f)
     log(f"完成: {task_id}")
 
+# 诊断关键字：出现这些说明是 diagnostic 空壳输出
+DIAG_KEYWORDS = ['mcp_205', 'mcp_206', 'inbox_daemon', 'gateway', 'STOPPED', 'running', 'HTTPError', 'URLError']
+
+def has_meaningful_result(result_data):
+    """判断 result 是否有真实业务内容，而非诊断空壳"""
+    if not result_data:
+        return False
+    if isinstance(result_data, dict):
+        # 排除诊断类输出
+        result_str = json.dumps(result_data)
+        if any(kw in result_str for kw in DIAG_KEYWORDS):
+            return False
+        # 排除空 dict
+        if not result_data:
+            return False
+        return True
+    return False
+
+def skip_task(task_id, reason="无真实业务结果"):
+    """跳过任务：不写入done，只清理doing"""
+    for suffix in [".md", ".running"]:
+        f = os.path.join(DOING_DIR, task_id + suffix)
+        if os.path.exists(f):
+            os.unlink(f)
+    log(f"跳过: {task_id} ({reason})")
+
 # ===== 主循环：完成→立即补货→立即派发→接下一个 =====
 def run_batch():
     token_ratio, can_continue = check_token()
@@ -402,8 +428,11 @@ def run_batch():
             if handler:
                 result_data = handler(task_id, content)
 
-        # 移动到 done
-        move_to_done(task_id, content, result_data)
+        # 判断：有真实结果才进 done，否则跳过
+        if has_meaningful_result(result_data):
+            move_to_done(task_id, content, result_data)
+        else:
+            skip_task(task_id, "无真实业务结果")
         batch_count += 1
 
         # 判断是否需要通知用户
