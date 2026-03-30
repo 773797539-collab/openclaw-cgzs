@@ -43,6 +43,23 @@ def read_json(filename: str):
     return None
 
 
+# ===== holdings / watchlist 数据读写（stock-assistant/data/）=====
+DATA_DIR = Path("/home/admin/openclaw/workspace/stock-assistant/data")
+
+def read_data_json(filename: str):
+    fp = DATA_DIR / filename
+    if fp.exists():
+        with open(fp, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return None
+
+def write_data_json(filename: str, data):
+    fp = DATA_DIR / filename
+    with open(fp, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    return fp
+
+
 def read_changelog_summary():
     changes = []
     changelog_file = CHANGELOG_DIR / "project-change-log.md"
@@ -385,6 +402,228 @@ async def portfolio():
 async def portfolio_history():
     data = read_json("portfolio_history.json")
     return data if data else {"history": {}, "last_updated": ""}
+
+
+# ===== holdings.json CRUD =====
+@app.get("/api/assets/holdings")
+async def get_holdings():
+    data = read_data_json("holdings.json")
+    if not data:
+        return {"holdings": [], "updated": ""}
+    for h in data.get("holdings", []):
+        code = h.get("code", "")
+        if code:
+            live = fetch_live_price(code)
+            if live:
+                h["price"] = live["price"]
+                h["change_pct"] = round(live["pct"], 2)
+                if h.get("buy_price"):
+                    h["profit_pct"] = round((live["price"] - h["buy_price"]) / h["buy_price"] * 100, 2)
+    return data
+
+@app.post("/api/assets/add-holding")
+async def add_holding(body: dict = None):
+    if body is None:
+        return {"error": "body required"}
+    required = ["code", "name", "shares", "buy_price"]
+    for f in required:
+        if f not in body:
+            return {"error": f"missing field: {f}"}
+    data = read_data_json("holdings.json") or {"source": "api", "updated": "", "holdings": []}
+    # 检查是否已存在
+    for h in data["holdings"]:
+        if h.get("code") == body["code"]:
+            return {"error": f"已有持仓 {body['code']}，请用 update-holding"}
+    h = {
+        "code": body["code"],
+        "name": body["name"],
+        "shares": int(body["shares"]),
+        "buy_price": float(body["buy_price"]),
+        "buy_date": body.get("buy_date", datetime.now().strftime("%Y-%m-%d")),
+        "stop_loss": float(body.get("stop_loss", body["buy_price"] * 0.85)),
+        "take_profit": float(body.get("take_profit", body["buy_price"] * 1.20)),
+        "risk_status": "持仓中",
+        "focus_points": body.get("focus_points", ""),
+        "latest_conclusion": body.get("latest_conclusion", ""),
+        "suggested_action": body.get("suggested_action", "持有"),
+        "last_scan_at": None,
+        "status": "pending_scan",
+    }
+    data["holdings"].append(h)
+    data["updated"] = datetime.now().isoformat()
+    write_data_json("holdings.json", data)
+    return {"ok": True, "holding": h}
+
+
+@app.post("/api/assets/update-holding")
+async def update_holding(body: dict = None):
+    if body is None or "code" not in body:
+        return {"error": "code required"}
+    data = read_data_json("holdings.json")
+    if not data:
+        return {"error": "holdings.json not found"}
+    for h in data["holdings"]:
+        if h.get("code") == body["code"]:
+            for k, v in body.items():
+                if k != "code":
+                    h[k] = v
+            data["updated"] = datetime.now().isoformat()
+            write_data_json("holdings.json", data)
+            return {"ok": True, "holding": h}
+    return {"error": f"持仓 {body['code']} 不存在"}
+
+
+# ===== watchlist.json CRUD =====
+@app.get("/api/assets/watchlist")
+async def get_watchlist():
+    return read_data_json("watchlist.json") or {"items": [], "updated": ""}
+
+@app.post("/api/assets/add-watch")
+async def add_watch(body: dict = None):
+    if body is None:
+        return {"error": "body required"}
+    required = ["code", "name"]
+    for f in required:
+        if f not in body:
+            return {"error": f"missing field: {f}"}
+    data = read_data_json("watchlist.json") or {"source": "api", "updated": "", "items": []}
+    for item in data["items"]:
+        if item.get("code") == body["code"]:
+            return {"error": f"观察池已有 {body['code']}"}
+    item = {
+        "code": body["code"],
+        "name": body["name"],
+        "buy_zone": body.get("buy_zone", ""),
+        "trigger_condition": body.get("trigger_condition", ""),
+        "trend_status": body.get("trend_status", "待观察"),
+        "risk_note": body.get("risk_note", ""),
+        "latest_conclusion": body.get("latest_conclusion", ""),
+        "watch_status": "观察中",
+        "remove_reason": None,
+        "last_scan_at": None,
+        "status": "pending_scan",
+    }
+    data["items"].append(item)
+    data["updated"] = datetime.now().isoformat()
+    write_data_json("watchlist.json", data)
+    return {"ok": True, "item": item}
+
+
+@app.post("/api/assets/update-watch")
+async def update_watch(body: dict = None):
+    if body is None or "code" not in body:
+        return {"error": "code required"}
+    data = read_data_json("watchlist.json")
+    if not data:
+        return {"error": "watchlist.json not found"}
+    for item in data["items"]:
+        if item.get("code") == body["code"]:
+            for k, v in body.items():
+                if k != "code":
+                    item[k] = v
+            data["updated"] = datetime.now().isoformat()
+            write_data_json("watchlist.json", data)
+            return {"ok": True, "item": item}
+    return {"error": f"观察池无 {body['code']}"}
+
+
+# ===== 扫描结果回写 =====
+@app.post("/api/assets/scan-result")
+async def scan_result(body: dict = None):
+    """扫描完成后回写结果到 holdings 或 watchlist"""
+    if body is None:
+        return {"error": "body required"}
+    code = body.get("code")
+    item_type = body.get("item_type")  # "holding" or "watch"
+    result_fields = {k: v for k, v in body.items() if k not in ("code", "item_type")}
+    if not code or not item_type:
+        return {"error": "code and item_type required"}
+    filename = "holdings.json" if item_type == "holding" else "watchlist.json"
+    data = read_data_json(filename)
+    if not data:
+        return {"error": f"{filename} not found"}
+    target_list = data.get("holdings" if item_type == "holding" else "items", [])
+    for item in target_list:
+        if item.get("code") == code:
+            for k, v in result_fields.items():
+                item[k] = v
+            item["last_scan_at"] = datetime.now().isoformat()
+            item["status"] = "scanned"
+            data["updated"] = datetime.now().isoformat()
+            write_data_json(filename, data)
+            return {"ok": True, "item": item}
+    return {"error": f"{code} not found in {filename}"}
+
+
+@app.get("/api/assets/sync")
+async def sync_assets():
+    """全量同步：返回所有 holdings + watchlist 合并状态"""
+    holdings = read_data_json("holdings.json")
+    watchlist = read_data_json("watchlist.json")
+    result = {
+        "sync_at": datetime.now().isoformat(),
+        "holdings": [],
+        "watchlist": [],
+    }
+    # 合并持仓含watchlist中的股票
+    codes = set()
+    if holdings:
+        for h in holdings.get("holdings", []):
+            codes.add(h.get("code"))
+            live = fetch_live_price(h.get("code", "")) if h.get("code") else None
+            item = dict(h)
+            if live:
+                item["price"] = live["price"]
+                item["change_pct"] = round(live["pct"], 2)
+                item["profit_pct"] = round((live["price"] - h.get("buy_price", 0)) / max(h.get("buy_price", 1), 0.01) * 100, 2)
+            result["holdings"].append(item)
+    if watchlist:
+        for w in watchlist.get("items", []):
+            if w.get("code") not in codes:
+                codes.add(w.get("code"))
+                live = fetch_live_price(w.get("code", "")) if w.get("code") else None
+                item = dict(w)
+                if live:
+                    item["price"] = live["price"]
+                    item["change_pct"] = round(live["pct"], 2)
+                result["watchlist"].append(item)
+    return result
+
+
+@app.get("/api/assets/recent-scans")
+async def recent_scans(code: str = None, item_type: str = None):
+    """最近扫描记录"""
+    if not code:
+        return {"error": "code required"}
+    # 从 scan_history.json 读取
+    history = read_data_json("scan_history.json") or {}
+    records = []
+    for date, scans in history.items():
+        for scan in scans:
+            if scan.get("code") == code:
+                if item_type and scan.get("item_type") != item_type:
+                    continue
+                records.append({"date": date, **scan})
+    records.sort(key=lambda x: x.get("date", ""), reverse=True)
+    return {"code": code, "item_type": item_type, "records": records[:20]}
+
+
+@app.get("/api/assets/related-records")
+async def related_records(code: str = None, item_type: str = None):
+    """关联记录：某股票相关的所有操作/扫描记录"""
+    if not code:
+        return {"error": "code required"}
+    # 从 scan_history.json 读取所有相关记录
+    history = read_data_json("scan_history.json") or {}
+    records = []
+    for date, scans in history.items():
+        for scan in scans:
+            if scan.get("code") == code:
+                if item_type and scan.get("item_type") != item_type:
+                    continue
+                records.append({"date": date, **scan})
+    records.sort(key=lambda x: x.get("date", ""), reverse=True)
+    return {"code": code, "item_type": item_type, "records": records[:50]}
 
 
 @app.get("/api/status/all")
