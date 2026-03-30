@@ -3,48 +3,33 @@
 ## 入口路由规则
 
 **入口**：`inbox/` 目录下的 .md 文件
-**处理**：每次 heartbeat 执行：
-1. `process_inbox.py` → 扫描 inbox，空时调用 `inbox-disp.js` 补货到 todo≥3，dispatch 到 doing
-2. `task_executor.py` → 从 doing 执行真实任务，写真实结果到 done（最多3轮）
-**dispatchedBy**：dispatcher.py 内部硬编码为 "stock-main"
+**处理**：每次 heartbeat 执行 `task_executor.py` 批循环（最多10个任务，完成→立即接下一个）
 
-## Pending 队列处理（每次 heartbeat 执行）
+## 内部任务池处理
 
-**处理流程**：
-```
-exec(command="cd /home/admin/openclaw/workspace/stock-assistant && python3 scripts/process_inbox.py 2>&1")
-```
-
-**cron 触发**：系统cron每5分钟唤醒 agent，确保队列不积压。
-
-## 内部任务池处理（每次 heartbeat 执行）
-
-**核心原则：有 Token 就干活，doing 有任务就执行，不空转**
+**核心原则：有 Token 就干活，完成→立即接下一个，不等定时器**
 
 **每次 heartbeat 执行**：
 ```bash
-# 1. 补货 + dispatch（inbox → todo → doing）
-python3 /home/admin/openclaw/workspace/stock-assistant/scripts/process_inbox.py
-
-# 2. 执行 doing 中的真实任务（最多3轮）
-for i in 1 2 3; do python3 /home/admin/openclaw/workspace/scripts/task_executor.py; done
+python3 /home/admin/openclaw/workspace/scripts/task_executor.py
 ```
 - 先查 Token，Token=0 则静默停摆
-- process_inbox.py：inbox 空时由 inbox-disp.js 按 P0→P1→P2→P3 严格优先级补货（P0维持≥2个）
-- task_executor.py：从 doing 取任务执行，写真实结果到 done/
+- task_executor 内部自动：完成→检查todo水位→补货→派发→接下一个（0秒间隔）
+- MAX_BATCH=10，BATCH_SLEEP=0
+- 停止条件：Token≤20%、无可执行任务、所有优先级任务因minInterval不可执行
 
-**内部任务池永远不会空**，因为：
-- inbox-disp.js 按 P0→P1→P2→P3 严格优先级自动补充
-- P0 任务：23个模板（持仓扫描、观察池、异动、盘前/盘后等）
-- 每轮 heartbeat 自动补充，保持 todo 水位
+**inbox-disp.js 补货逻辑（task_executor 内部调用）**：
+- 严格 P0→P1→P2→P3 优先级
+- P0 永远维持≥2个，P0<2时忽略minInterval强制补
+- P1+P2合计最多占todo的1/3
+- P3只在P0/P1/P2都没有时出现
 
-**注意**：系统无 cron daemon，daemon 仅作备用。主力是每次 heartbeat 批量执行5个任务。
+**23个P0模板**：持仓扫描、观察池扫描、异动监控、盘前任务（市场环境/热点板块/持仓重点/今日重点3股/风险提醒/行动计划）、盘中任务（公告变化/环境切换/强时效提醒）、盘后任务（市场复盘/持仓复盘/选股复盘/错误归因/次日准备）、资产更新（holdings/watchlist/related/recent）
 
 ## Token 检查规则（最重要！）
 
 **每次 heartbeat 必须先运行 token_guard**：
 ```python
-# heartbeat 开头必须先调用
 import sys
 sys.path.insert(0, '/home/admin/openclaw/workspace/scripts')
 from heartbeat_token_guard import check_token
@@ -70,31 +55,9 @@ pkill -f "python3.*portal"; sleep 1; cd /home/admin/openclaw/workspace/portal &&
 ## 标准检查（按优先级）
 
 1. **Token 状态** - 先查，0则静默停摆
-2. **内部任务池** - 从池中取一个 pending 任务执行（token_guard 之后立即执行）
+2. **内部任务池** - task_executor 批循环执行（不等待定时器）
 3. **Portal 运行状态** - 每 heartbeat 检查
-4. **Git 提交** - 每 heartbeat 有事实产出（有任务执行就有 commit）
-5. **Memory 更新** - 每天 review
-
-**内部任务池永不空**：
-- 初始11个任务（系统维护/诊断/清理）
-- 每次补充新任务
-- failed 自动重置重试
-
-## 当前状态（2026-03-29 15:52）
-
-```
-Token：4458/4500（99.1%），约4.1小时
-Portal：✅ 正常（5 agents）
-持仓：立达信 605365，¥18.35，浮亏-11.2%
-今日：周日休市，下一工作日周一09:30
-Git：9362281（96条）
-工作区：干净
-队列：0条待处理
-taskPool：todo=0 doing=0 done=2 blocked=0
-系统：健康
-cron：4个（周一至五，market-open/close + morning + inbox）
-最近commit：dispatcher迁移决策文档
-```
+4. **Git 提交** - 每 heartbeat 有事实产出
 
 ## Token汇报格式
 ```
@@ -107,7 +70,7 @@ Token: 剩余A/B=A%, 已用(B-A)/B=B%  ✅/⚠️/❌
 **触发以下任一条件，立即停摆，不发任何消息**：
 1. Token API 返回 usage_count = 0
 2. Token API 返回 HTTP 错误或 JSON 解析失败
-3. Token 剩余 < 20%（即 4.3% 已触发）
+3. Token 剩余 < 20%
 4. Portal API 无响应
 
 **静默停摆 = 不回复任何 channel，不写日志，只记录 HEARTBEAT_OK**
