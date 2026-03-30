@@ -12,77 +12,68 @@ const INBOX_DIR = '/home/admin/openclaw/workspace/stock-assistant/tasks/inbox';
 // ===== 任务模板（严格 P0→P1→P2→P3）=====
 const TEMPLATES = [
     // ========== P0: 股票主业务 ==========
-    // 持仓
-    { id:'持仓扫描-',        type:'持仓扫描',      agent:'stock-main', priority:'P0', minInterval:3600  },
-    { id:'持仓风险更新-',    type:'持仓风险更新',   agent:'stock-main', priority:'P0', minInterval:3600  },
-    // 观察池
-    { id:'观察池扫描-',      type:'观察池扫描',     agent:'stock-main', priority:'P0', minInterval:3600  },
-    { id:'观察池迁移-',      type:'观察池迁移',     agent:'stock-main', priority:'P0', minInterval:7200  },
-    { id:'剔除原因回填-',    type:'剔除原因回填',   agent:'stock-main', priority:'P0', minInterval:7200  },
-    // 盘前（09:00-09:30）
-    { id:'市场环境判断-',    type:'市场环境判断',   agent:'stock-main', priority:'P0', minInterval:43200 },
-    { id:'热点板块-',        type:'热点板块',        agent:'stock-main', priority:'P0', minInterval:43200 },
-    { id:'持仓重点-',        type:'持仓重点',        agent:'stock-main', priority:'P0', minInterval:43200 },
-    { id:'今日重点3股-',     type:'今日重点3股',    agent:'stock-main', priority:'P0', minInterval:43200 },
-    { id:'风险提醒-',        type:'风险提醒',        agent:'stock-main', priority:'P0', minInterval:43200 },
-    { id:'行动计划-',         type:'行动计划',        agent:'stock-main', priority:'P0', minInterval:43200 },
-    // 盘中（09:30-15:00）
-    { id:'异动监控-',        type:'异动监控',        agent:'stock-main', priority:'P0', minInterval:1800  },
-    { id:'公告变化-',        type:'公告变化',        agent:'stock-main', priority:'P0', minInterval:3600  },
-    { id:'环境切换-',        type:'环境切换',        agent:'stock-main', priority:'P0', minInterval:7200  },
-    { id:'强时效提醒-',      type:'强时效提醒',      agent:'stock-main', priority:'P0', minInterval:3600  },
-    // 盘后（15:00-16:00）
-    { id:'市场复盘-',        type:'市场复盘',        agent:'stock-main', priority:'P0', minInterval:43200 },
-    { id:'持仓复盘-',        type:'持仓复盘',        agent:'stock-main', priority:'P0', minInterval:43200 },
-    { id:'选股复盘-',        type:'选股复盘',        agent:'stock-main', priority:'P0', minInterval:43200 },
-    { id:'错误归因-',        type:'错误归因',        agent:'stock-main', priority:'P0', minInterval:43200 },
-    { id:'次日准备-',        type:'次日准备',        agent:'stock-main', priority:'P0', minInterval:43200 },
-    // 资产中心
-    { id:'holdings更新-',   type:'holdings更新',   agent:'stock-main', priority:'P0', minInterval:3600  },
-    { id:'watchlist更新-',  type:'watchlist更新',  agent:'stock-main', priority:'P0', minInterval:7200  },
-    { id:'related记录-',    type:'related记录',    agent:'stock-main', priority:'P0', minInterval:7200  },
-    { id:'recent扫描-',     type:'recent扫描',     agent:'stock-main', priority:'P0', minInterval:7200  },
-
+    { id:'持仓扫描-',        type:'持仓扫描',      agent:'stock-main', priority:'P0' },
+    { id:'持仓风险更新-',    type:'持仓风险更新',   agent:'stock-main', priority:'P0' },
+    { id:'观察池扫描-',      type:'观察池扫描',     agent:'stock-main', priority:'P0' },
+    { id:'观察池迁移-',      type:'观察池迁移',     agent:'stock-main', priority:'P0' },
+    { id:'剔除原因回填-',    type:'剔除原因回填',   agent:'stock-main', priority:'P0' },
+    { id:'市场环境判断-',    type:'市场环境判断',   agent:'stock-main', priority:'P0' },
+    { id:'热点板块-',        type:'热点板块',        agent:'stock-main', priority:'P0' },
+    { id:'持仓重点-',        type:'持仓重点',        agent:'stock-main', priority:'P0' },
+    { id:'今日重点3股-',     type:'今日重点3股',    agent:'stock-main', priority:'P0' },
+    { id:'风险提醒-',        type:'风险提醒',        agent:'stock-main', priority:'P0' },
+    { id:'行动计划-',         type:'行动计划',        agent:'stock-main', priority:'P0' },
+    { id:'异动监控-',        type:'异动监控',        agent:'stock-main', priority:'P0' },
+    { id:'公告变化-',        type:'公告变化',        agent:'stock-main', priority:'P0' },
+    { id:'环境切换-',        type:'环境切换',        agent:'stock-main', priority:'P0' },
+    { id:'强时效提醒-',      type:'强时效提醒',      agent:'stock-main', priority:'P0' },
+    { id:'市场复盘-',        type:'市场复盘',        agent:'stock-main', priority:'P0' },
+    { id:'持仓复盘-',        type:'持仓复盘',        agent:'stock-main', priority:'P0' },
+    { id:'选股复盘-',        type:'选股复盘',        agent:'stock-main', priority:'P0' },
+    { id:'错误归因-',        type:'错误归因',        agent:'stock-main', priority:'P0' },
+    { id:'次日准备-',        type:'次日准备',        agent:'stock-main', priority:'P0' },
+    { id:'holdings更新-',   type:'holdings更新',   agent:'stock-main', priority:'P0' },
+    { id:'watchlist更新-',  type:'watchlist更新',  agent:'stock-main', priority:'P0' },
+    { id:'related记录-',    type:'related记录',    agent:'stock-main', priority:'P0' },
+    { id:'recent扫描-',     type:'recent扫描',     agent:'stock-main', priority:'P0' },
     // ========== P1: 股票系统成长 ==========
-    { id:'skill调研-',       type:'skill调研',       agent:'stock-main', priority:'P1', minInterval:86400 },
-    { id:'workflow优化-',   type:'workflow优化',    agent:'stock-main', priority:'P1', minInterval:86400 },
-    { id:'失败样本沉淀-',   type:'失败样本沉淀',     agent:'stock-main', priority:'P1', minInterval:21600 },
-    { id:'规则提炼-',        type:'规则提炼',        agent:'stock-main', priority:'P1', minInterval:86400 },
-    { id:'MEMORY检查-',     type:'MEMORY检查',      agent:'stock-main', priority:'P1', minInterval:86400 },
-    { id:'股票规律沉淀-',   type:'股票规律沉淀',     agent:'stock-main', priority:'P1', minInterval:86400 },
-    { id:'市场模式沉淀-',   type:'市场模式沉淀',     agent:'stock-main', priority:'P1', minInterval:86400 },
-    { id:'通知规则优化-',   type:'通知规则优化',     agent:'stock-main', priority:'P1', minInterval:86400 },
-
+    { id:'skill调研-',       type:'skill调研',       agent:'stock-main', priority:'P1' },
+    { id:'workflow优化-',   type:'workflow优化',    agent:'stock-main', priority:'P1' },
+    { id:'失败样本沉淀-',   type:'失败样本沉淀',     agent:'stock-main', priority:'P1' },
+    { id:'规则提炼-',        type:'规则提炼',        agent:'stock-main', priority:'P1' },
+    { id:'MEMORY检查-',     type:'MEMORY检查',      agent:'stock-main', priority:'P1' },
+    { id:'股票规律沉淀-',   type:'股票规律沉淀',     agent:'stock-main', priority:'P1' },
+    { id:'市场模式沉淀-',   type:'市场模式沉淀',     agent:'stock-main', priority:'P1' },
+    { id:'通知规则优化-',   type:'通知规则优化',     agent:'stock-main', priority:'P1' },
     // ========== P2: 门户站优化 ==========
-    { id:'asset-center优化-',   type:'asset-center优化',  agent:'stock-main', priority:'P2', minInterval:86400 },
-    { id:'状态页中文化-',       type:'状态页中文化',       agent:'stock-main', priority:'P2', minInterval:86400 },
-    { id:'详情预览统一-',       type:'详情预览统一',       agent:'stock-main', priority:'P2', minInterval:86400 },
-    { id:'局部刷新优化-',       type:'局部刷新优化',       agent:'stock-main', priority:'P2', minInterval:86400 },
-    { id:'资产观察池一致性-',   type:'资产观察池一致性',   agent:'stock-main', priority:'P2', minInterval:86400 },
-    { id:'高价值产出过滤-',     type:'高价值产出过滤',     agent:'stock-main', priority:'P2', minInterval:86400 },
-
+    { id:'asset-center优化-',   type:'asset-center优化',  agent:'stock-main', priority:'P2' },
+    { id:'状态页中文化-',       type:'状态页中文化',       agent:'stock-main', priority:'P2' },
+    { id:'详情预览统一-',       type:'详情预览统一',       agent:'stock-main', priority:'P2' },
+    { id:'局部刷新优化-',       type:'局部刷新优化',       agent:'stock-main', priority:'P2' },
+    { id:'资产观察池一致性-',   type:'资产观察池一致性',   agent:'stock-main', priority:'P2' },
+    { id:'高价值产出过滤-',     type:'高价值产出过滤',     agent:'stock-main', priority:'P2' },
     // ========== P3: 最低兜底 ==========
-    { id:'sys-diag-',        type:'diagnostic',  agent:'system', priority:'P3', minInterval:7200  },
-    { id:'sys-consistency-', type:'consistency', agent:'system', priority:'P3', minInterval:7200  },
-    { id:'脏任务归档-',      type:'脏任务归档',   agent:'system', priority:'P3', minInterval:14400 },
-    { id:'异常日志整理-',    type:'异常日志整理', agent:'system', priority:'P3', minInterval:14400 },
+    { id:'sys-diag-',        type:'diagnostic',  agent:'system', priority:'P3' },
+    { id:'sys-consistency-', type:'consistency', agent:'system', priority:'P3' },
+    { id:'脏任务归档-',      type:'脏任务归档',   agent:'system', priority:'P3' },
+    { id:'异常日志整理-',    type:'异常日志整理', agent:'system', priority:'P3' },
 ];
 
-// ===== 工具 =====
-function nowTs()    { return Date.now(); }
-function getDateStr() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+// ===== 轮转状态 =====
+const STATE_FILE = '/tmp/inbox-disp-state.json';
+function loadState() {
+    try {
+        if (FS.existsSync(STATE_FILE)) return JSON.parse(FS.readFileSync(STATE_FILE, 'utf8'));
+    } catch {}
+    return { p0Idx: 0, p1Idx: 0, p2Idx: 0, lastTime: 0 };
+}
+function saveState(s) {
+    FS.writeFileSync(STATE_FILE, JSON.stringify(s));
 }
 
-function recentDoneCount(taskPrefix, intervalSec) {
-    if (!FS.existsSync(DONE_DIR)) return 0;
-    const cutoff = nowTs() - intervalSec * 1000;
-    return FS.readdirSync(DONE_DIR)
-        .filter(f => f.startsWith(taskPrefix) && f.endsWith('.md'))
-        .filter(f => FS.statSync(PATH.join(DONE_DIR, f)).mtimeMs > cutoff)
-        .length;
-}
+// ===== 工具 =====
+function nowTs() { return Date.now(); }
+function mkdir(dir) { FS.mkdirSync(dir, {recursive:true}); }
 
 function countByPriority(dir) {
     const c = { P0:0, P1:0, P2:0, P3:0, total:0 };
@@ -96,8 +87,6 @@ function countByPriority(dir) {
     }
     return c;
 }
-
-function mkdir(dir) { FS.mkdirSync(dir, {recursive:true}); }
 
 // ===== 写任务文件 =====
 function writeTask(tpl, taskId) {
@@ -118,73 +107,80 @@ status: pending
     return fp;
 }
 
-// ===== 选择最优先模板（严格 P0→P1→P2→P3）=====
+// ===== 选择模板（轮转，永远不重复上一个）=====
 function selectTemplate() {
     const counts = countByPriority(TODO_DIR);
+    const state  = loadState();
     const hour   = new Date().getHours();
     const minute = new Date().getMinutes();
 
-    // === 规则1: P0 永远维持至少 2 个 ===
-    if (counts.P0 < 2) {
-        // P0=0 时极度饥饿：忽略 minInterval，直接找任意 P0 模板
-        const p0Templates = TEMPLATES.filter(t => t.priority === 'P0');
-        if (counts.P0 === 0) {
-            // 找任意 P0（不管 minInterval）
-            const candidates = [
-                p0Templates.find(t => t.id === '持仓扫描-'),
-                p0Templates.find(t => t.id === '观察池扫描-'),
-                p0Templates.find(t => t.id === '异动监控-'),
-                p0Templates.find(t => t.id === '持仓风险更新-'),
-            ].filter(Boolean);
-            for (const tpl of candidates) return tpl;
-            // 兜底：任意 P0
-            for (const tpl of p0Templates) return tpl;
-        }
-        // P0=1：尝试找新的 P0（minInterval 约束）
-        if (hour === 9 && minute < 30) {
-            const tpl = p0Templates.find(t => t.id === '市场环境判断-');
-            if (tpl && recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
-        }
-        if (hour >= 9 && hour < 15) {
-            const tpl = p0Templates.find(t => t.id === '异动监控-');
-            if (tpl && recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
-        }
-        if (hour >= 15 && hour < 16) {
-            const tpl = p0Templates.find(t => t.id === '市场复盘-');
-            if (tpl && recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
-        }
-        const candidates = [
-            p0Templates.find(t => t.id === '持仓扫描-'),
-            p0Templates.find(t => t.id === '观察池扫描-'),
-            p0Templates.find(t => t.id === '持仓风险更新-'),
-        ].filter(Boolean);
-        for (const tpl of candidates) {
-            if (recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
-        }
-        // 兜底：任意 minInterval 已过的 P0
-        for (const tpl of p0Templates) {
-            if (recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
-        }
-        // 如果找不到可补的 P0，先补 P1（不做 P0 饿死时的硬阻塞）
-    }
+    // 时间分段优先级
+    const timeOrder = [];
+    if (hour === 9 && minute < 30) timeOrder.push('市场环境判断');
+    if (hour >= 9 && hour < 15)    timeOrder.push('异动监控', '公告变化', '环境切换', '强时效提醒');
+    if (hour >= 15 && hour < 16)   timeOrder.push('市场复盘', '持仓复盘', '选股复盘', '错误归因', '次日准备');
 
-    // === 规则2: P0 ≥ 2，但 todo 总数 < 3 → 补 P1/P2 ===
-    if (counts.total < 3) {
-        for (const pri of ['P1', 'P2']) {
-            for (const tpl of TEMPLATES.filter(t => t.priority === pri)) {
-                if (recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
+    const regularOrder = ['持仓扫描','观察池扫描','持仓风险更新','持仓重点',
+                          '热点板块','今日重点3股','风险提醒','行动计划',
+                          'holdings更新','watchlist更新','related记录','recent扫描',
+                          '观察池迁移','剔除原因回填'];
+
+    const orderedTypes = [...new Set([...timeOrder, ...regularOrder])];
+
+    // === P0 永远维持至少 2 个 ===
+    if (counts.P0 < 2) {
+        const p0Templates = TEMPLATES.filter(t => t.priority === 'P0');
+        if (p0Templates.length === 0) return null;
+
+        // 优先选时间分段+常规顺序中，下一个非"持仓扫描"的P0
+        // 从 lastIdx+1 开始轮转
+        let idx = (state.p0Idx + 1) % p0Templates.length;
+        let attempts = 0;
+        while (attempts < p0Templates.length) {
+            const tpl = p0Templates[idx];
+            attempts++;
+            idx = (idx + 1) % p0Templates.length;
+            // 跳过"持仓扫描"（优先级最低的兜底）
+            if (tpl.type === '持仓扫描') {
+                // 把它放到轮转末尾，下次再跳过
+                continue;
+            }
+            // 优先选时间/常规顺序靠前的
+            const typePos = orderedTypes.indexOf(tpl.type);
+            if (typePos !== -1 || tpl.type !== '持仓扫描') {
+                saveState({ ...state, p0Idx: idx });
+                return tpl;
             }
         }
+        // 兜底：跳过持仓扫描，选下一个
+        const safeIdx = (state.p0Idx + 2) % p0Templates.length;
+        saveState({ ...state, p0Idx: safeIdx });
+        return p0Templates[safeIdx] || p0Templates[0];
     }
 
-    // === 规则3: P0 ≥ 2 且 P1/P2 已满，才允许 P3 ===
-    if (counts.P0 >= 2 && counts.total < 3) {
-        for (const tpl of TEMPLATES.filter(t => t.priority === 'P3')) {
-            if (recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
+    // === P0 ≥ 2，补充 P1/P2 ===
+    if (counts.total < 3) {
+        const p1Templates = TEMPLATES.filter(t => t.priority === 'P1');
+        if (p1Templates.length > 0) {
+            const idx = (state.p1Idx + 1) % p1Templates.length;
+            saveState({ ...state, p1Idx: idx });
+            return p1Templates[idx];
+        }
+        const p2Templates = TEMPLATES.filter(t => t.priority === 'P2');
+        if (p2Templates.length > 0) {
+            const idx = (state.p2Idx + 1) % p2Templates.length;
+            saveState({ ...state, p2Idx: idx });
+            return p2Templates[idx];
         }
     }
 
-    return null; // 充分条件未满足，不补货
+    // === 只有 P0/P1/P2 都没有才做 P3 ===
+    if (counts.P0 === 0 && counts.P1 === 0 && counts.P2 === 0) {
+        const tpl = TEMPLATES.find(t => t.priority === 'P3');
+        if (tpl) return tpl;
+    }
+
+    return null;
 }
 
 // ===== 核心调度 =====
@@ -209,15 +205,13 @@ function check_and_dispatch() {
         }
     }
 
-    // 次优：todo 为空或 P0 不足 → replenish
-    // 注意：P0<2 时即使 total>=3 也要补（P0 永远优先）
-    const counts = countByPriority(TODO_DIR);
+    // 次优：todo 为空 → replenish
     const tpl = selectTemplate();
-    if (!tpl) return { action:'idle', reason:'no_candidate', counts };
+    if (!tpl) return { action:'idle', reason:'no_candidate', counts: countByPriority(TODO_DIR) };
 
     const taskId = tpl.id + nowTs();
     writeTask(tpl, taskId);
-    return { action:'replenished', taskId, type:tpl.type, priority:tpl.priority, counts };
+    return { action:'replenished', taskId, type:tpl.type, priority:tpl.priority, counts: countByPriority(TODO_DIR) };
 }
 
 // ===== 直接运行 =====

@@ -17,9 +17,9 @@ INBOX_DIR     = f"{STOCK_WS}/tasks/inbox"
 NODE_BIN      = "/home/admin/.nvm/versions/node/v24.14.0/bin/node"
 
 # ===== 运行参数 =====
-MAX_BATCH     = 10     # 每轮最大批量（保护 token）
+MAX_BATCH     = 1000   # 每轮最大批量（保护 token，1000=近似无限）
 TOKEN_STOP    = 0.20   # token 剩余 ≤20% 时停止
-BATCH_SLEEP   = 0      # 每任务之间不等待
+LOOP_SLEEP    = 1      # 每轮循环间隙（秒），doing空时等待
 TODO_WATER    = 3      # todo 水位（低于此值立即补货）
 
 # ===== Token 检查 =====
@@ -150,6 +150,105 @@ def execute_diagnostic(task_id, content):
     log(f"诊断: {json.dumps(results)}")
     return results
 
+# ===== P0 股票任务结果处理器 =====
+def check_and_notify_p0(task_id, task_type, result_data):
+    """
+    判断 P0 任务结果是否需要通知用户。
+    返回 (should_notify, notify_message)
+    通知条件：
+    - 持仓风险状态变化（止损/止盈建议变化）
+    - 观察池新增/移除/升级
+    - 盘前/盘后结论生成
+    - 盘中强时效提醒
+    - 资产中心数据变化
+    """
+    # 通知消息收集
+    alerts = []
+
+    # === 持仓风险更新 ===
+    if task_type == '持仓风险更新' and result_data:
+        try:
+            # 读取持仓数据
+            portfolio_file = f"{WORKSPACE}/stock-assistant/data/portfolio.json"
+            if os.path.exists(portfolio_file):
+                with open(portfolio_file) as f:
+                    pf = json.load(f)
+                holdings = pf.get('holdings', [])
+                if holdings:
+                    h = holdings[0]
+                    price   = float(h.get('price', 0))
+                    cost    = float(h.get('cost', 0))
+                    shares  = int(h.get('shares', 0))
+                    if cost > 0:
+                        pct = (price - cost) / cost * 100
+                        stop_loss = cost * 0.85  # -15%
+                        if pct <= -10:
+                            alerts.append(f"⚠️ 持仓风险：{h.get('name','?')} 浮亏 {pct:.1f}%，距止损线 {stop_loss:.2f} 还有 {pct+15:.1f}%")
+                        if pct >= 5:
+                            alerts.append(f"✅ 持仓提醒：{h.get('name','?')} 已浮盈 {pct:.1f}%，关注止盈时机")
+        except Exception as e:
+            log(f"持仓风险读取失败: {e}")
+        if alerts:
+            return True, '\n'.join(alerts)
+
+    # === 观察池扫描 ===
+    if task_type == '观察池扫描' and result_data:
+        try:
+            watchlist_file = f"{WORKSPACE}/stock-assistant/data/watchlist.json"
+            if os.path.exists(watchlist_file):
+                with open(watchlist_file) as f:
+                    wl = json.load(f)
+                items = wl.get('items', []) if isinstance(wl, dict) else (wl or [])
+                if items:
+                    names = [h.get('name', h.get('code', '?')) for h in items[:5]]
+                    alerts.append(f"📋 观察池 ({len(items)}只): {', '.join(names)}")
+        except Exception as e:
+            log(f"观察池读取失败: {e}")
+        if alerts:
+            return True, '\n'.join(alerts)
+
+    # === 盘前任务 ===
+    if task_type in ('市场环境判断', '热点板块', '今日重点3股', '行动计划') and result_data:
+        try:
+            market_file = f"{WORKSPACE}/stock-assistant/data/market-brief.json"
+            if os.path.exists(market_file):
+                with open(market_file) as f:
+                    mb = json.load(f)
+                brief = mb.get('brief', mb.get('summary', ''))
+                if brief:
+                    alerts.append(f"📊 {task_type}：{brief[:200]}")
+        except:
+            pass
+        if alerts:
+            return True, '\n'.join(alerts)
+
+    # === 盘后复盘 ===
+    if task_type in ('市场复盘', '持仓复盘', '选股复盘', '错误归因', '次日准备') and result_data:
+        try:
+            review_file = f"{WORKSPACE}/stock-assistant/data/review.json"
+            if os.path.exists(review_file):
+                with open(review_file) as f:
+                    rv = json.load(f)
+                summary = rv.get('summary', rv.get('conclusion', ''))
+                if summary:
+                    alerts.append(f"📝 {task_type}：{summary[:200]}")
+        except:
+            pass
+        if alerts:
+            return True, '\n'.join(alerts)
+
+    # === 强时效提醒 ===
+    if task_type == '强时效提醒' and result_data:
+        # 强时效提醒默认通知
+        return True, f"🚨 {result_data.get('summary', '有待处理事项')}" if isinstance(result_data, dict) else f"🚨 强时效提醒"
+
+    # === holdings / watchlist 更新 ===
+    if task_type in ('holdings更新', 'watchlist更新', 'related记录', 'recent扫描') and result_data:
+        if result_data and result_data.get('updated'):
+            return True, f"✅ {task_type} 已更新"
+
+    return False, ''
+
 def execute_cleanup(task_id, content):
     import glob, time as t
     results = {}
@@ -261,7 +360,7 @@ def run_batch():
         # 1. Token 再检查
         token_ratio, can_continue = check_token()
         if not can_continue:
-            log(f"Token {token_ratio:.1%} ≤ {TOKEN_STOP:.0%}，退出批次")
+            log(f"Token {token_ratio:.1%} ≤ {TOKEN_STOP:.0%}，退出循环")
             break
 
         # 2. 找 doing 中最老任务
@@ -270,12 +369,14 @@ def run_batch():
             # doing 空：立即调用 inbox-disp 补货+派发
             dispatched = dispatch_one()
             if not dispatched:
-                log(f"第{batch_count+1}个任务: doing空，无可补派发，停止")
-                break
+                # 无可执行任务，等待 LOOP_SLEEP 秒后重试
+                time.sleep(LOOP_SLEEP)
+                continue
             # inbox-disp 已派发，doing 已有任务，继续执行
             files = [f for f in os.listdir(DOING_DIR) if f.endswith(".md")]
             if not files:
-                break
+                time.sleep(LOOP_SLEEP)
+                continue
 
         files.sort()
         task_file = files[0]
@@ -305,20 +406,28 @@ def run_batch():
         move_to_done(task_id, content, result_data)
         batch_count += 1
 
+        # 判断是否需要通知用户
+        should_notify, notify_msg = check_and_notify_p0(task_id, task_type, result_data)
+        if should_notify and notify_msg:
+            # P0 重要结果写入通知队列，由 agent heartbeat 时推送
+            notify_file = f"{WORKSPACE}/data/p0-notifications.jsonl"
+            os.makedirs(os.path.dirname(notify_file), exist_ok=True)
+            with open(notify_file, 'a') as f:
+                f.write(json.dumps({
+                    "task_id": task_id,
+                    "task_type": task_type,
+                    "message": notify_msg,
+                    "ts": datetime.now().isoformat(),
+                    "priority": "P0"
+                }, ensure_ascii=False) + '\n')
+
         # 3. 立即检查 todo 水位：低于 TODO_WATER 立即补货
         todo_count = len([f for f in os.listdir(TODO_DIR) if f.endswith(".md")])
         if todo_count < TODO_WATER:
             log(f"todo={todo_count} < 水位{TODO_WATER}，补货")
             dispatch_one()  # replenish
 
-        # 4. 立即派发下一任务（不等待）
-        #    下一次循环开头会自动 dispatch
-
-        # 5. 每任务之间不等待
-        if BATCH_SLEEP > 0:
-            time.sleep(BATCH_SLEEP)
-
-    log(f"批次完成: {batch_count} 个任务")
+    log(f"循环结束: {batch_count} 个任务")
     return batch_count
 
 if __name__ == "__main__":
