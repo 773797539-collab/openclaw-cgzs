@@ -73,82 +73,170 @@ def dispatch_one():
 
 # ===== 任务处理器 =====
 TASK_HANDLERS = {
-    "diagnostic": "execute_diagnostic",
-    "cleanup": "execute_cleanup",
-    "consistency": "execute_consistency",
-    "consistency_check": "execute_consistency",
-    "blocked_review": "execute_blocked_review",
-    "docs_review": "execute_docs_review",
-    "heartbeat_review": "execute_heartbeat_review",
-    "portal_review": "execute_portal_review",
+    # === P0 股票业务 → 真实处理器 ===
+    "持仓扫描":     "execute_portfolio_scan",
+    "持仓风险更新": "execute_portfolio_scan",
+    "观察池扫描":   "execute_portfolio_scan",
+    "holdings更新": "execute_portfolio_scan",
+    "watchlist更新":"execute_portfolio_scan",
+    "recent扫描":  "execute_portfolio_scan",
+    # === P0 运维类 → 轻量处理 ===
+    "市场环境判断": "execute_lightweight",
+    "热点板块":     "execute_lightweight",
+    "持仓重点":     "execute_lightweight",
+    "今日重点3股": "execute_lightweight",
+    "风险提醒":     "execute_lightweight",
+    "行动计划":     "execute_lightweight",
+    "异动监控":     "execute_lightweight",
+    "公告变化":     "execute_lightweight",
+    "环境切换":     "execute_lightweight",
+    "强时效提醒":   "execute_lightweight",
+    "市场复盘":     "execute_lightweight",
+    "持仓复盘":     "execute_lightweight",
+    "选股复盘":     "execute_lightweight",
+    "错误归因":     "execute_lightweight",
+    "次日准备":     "execute_lightweight",
+    "观察池迁移":   "execute_lightweight",
+    "剔除原因回填": "execute_lightweight",
+    "related记录": "execute_lightweight",
+    # === P1 ===
+    "skill调研":     "execute_lightweight",
+    "workflow优化": "execute_lightweight",
+    "失败样本沉淀": "execute_lightweight",
+    "规则提炼":     "execute_lightweight",
+    "MEMORY检查":   "execute_lightweight",
+    "股票规律沉淀": "execute_lightweight",
+    "市场模式沉淀": "execute_lightweight",
+    "通知规则优化": "execute_lightweight",
+    # === P2 ===
+    "asset-center优化": "execute_lightweight",
+    "状态页中文化":   "execute_lightweight",
+    "详情预览统一":   "execute_lightweight",
+    "局部刷新优化":   "execute_lightweight",
+    "资产观察池一致性": "execute_lightweight",
+    "高价值产出过滤": "execute_lightweight",
+    # === P3 / 运维 ===
+    "diagnostic":    "execute_lightweight",
+    "consistency":   "execute_lightweight",
+    "脏任务归档":    "execute_lightweight",
+    "异常日志整理":  "execute_lightweight",
+    "cleanup":       "execute_cleanup",
+    "blocked_review":"execute_blocked_review",
     "failed_review": "execute_failed_review",
-    "repo_health": "execute_diagnostic",
-    "report": "execute_diagnostic",
-    "growth": "execute_diagnostic",
-    # === P0 股票业务任务 ===
-    "持仓扫描": "execute_diagnostic",
-    "持仓风险更新": "execute_diagnostic",
-    "观察池扫描": "execute_diagnostic",
-    "观察池迁移": "execute_diagnostic",
-    "剔除原因回填": "execute_diagnostic",
-    "市场环境判断": "execute_diagnostic",
-    "热点板块": "execute_diagnostic",
-    "持仓重点": "execute_diagnostic",
-    "今日重点3股": "execute_diagnostic",
-    "风险提醒": "execute_diagnostic",
-    "行动计划": "execute_diagnostic",
-    "异动监控": "execute_diagnostic",
-    "公告变化": "execute_diagnostic",
-    "环境切换": "execute_diagnostic",
-    "强时效提醒": "execute_diagnostic",
-    "市场复盘": "execute_diagnostic",
-    "持仓复盘": "execute_diagnostic",
-    "选股复盘": "execute_diagnostic",
-    "错误归因": "execute_diagnostic",
-    "次日准备": "execute_diagnostic",
-    "holdings更新": "execute_diagnostic",
-    "watchlist更新": "execute_diagnostic",
-    "related记录": "execute_diagnostic",
-    "recent扫描": "execute_diagnostic",
-    # === P1 股票系统成长 ===
-    "skill调研": "execute_diagnostic",
-    "workflow优化": "execute_diagnostic",
-    "失败样本沉淀": "execute_diagnostic",
-    "规则提炼": "execute_diagnostic",
-    "MEMORY检查": "execute_diagnostic",
-    "股票规律沉淀": "execute_diagnostic",
-    "市场模式沉淀": "execute_diagnostic",
-    "通知规则优化": "execute_diagnostic",
-    # === P2 门户站优化 ===
-    "asset-center优化": "execute_diagnostic",
-    "状态页中文化": "execute_diagnostic",
-    "详情预览统一": "execute_diagnostic",
-    "局部刷新优化": "execute_diagnostic",
-    "资产观察池一致性": "execute_diagnostic",
-    "高价值产出过滤": "execute_diagnostic",
-    # === P3 兜底 ===
-    "脏任务归档": "execute_diagnostic",
-    "异常日志整理": "execute_diagnostic",
+    "repo_health":   "execute_lightweight",
 }
 
 def execute_diagnostic(task_id, content):
-    results = {}
-    try:
-        import urllib.request
-        for ip in [205, 206]:
-            try:
-                urllib.request.urlopen(f"http://82.156.17.{ip}:8000/", timeout=3)
-                results[f"mcp_{ip}"] = "OK"
-            except Exception as e:
-                results[f"mcp_{ip}"] = f"FAIL: {type(e).__name__}"
-    except Exception as e:
-        results["mcp_check"] = str(e)
-    r = subprocess.run(["pgrep","-f","inbox-cron"], capture_output=True, text=True)
-    results["inbox_daemon"] = "running" if r.stdout.strip() else "STOPPED"
-    r = subprocess.run(["pgrep","-a","openclaw-gateway"], capture_output=True, text=True)
-    results["gateway"] = "running" if r.stdout.strip() else "STOPPED"
-    log(f"诊断: {json.dumps(results)}")
-    return results
+    return {}  # 空结果，不进done
+
+def execute_portfolio_scan(task_id, content):
+    """扫描持仓或观察池，回写 scan_result 到 data JSON"""
+    import datetime as dt
+
+    # 解析 task_type 和 code
+    task_type = "all"
+    code = None
+    for line in content.split("\n"):
+        if ":" in line:
+            k, v = line.split(":", 1)
+            k = k.strip()
+            v = v.strip()
+            if k in ("type", "t"):
+                if v in ("持仓扫描", "持仓风险更新", "holdings更新"):
+                    task_type = "holding"
+                elif v in ("观察池扫描", "watchlist更新"):
+                    task_type = "watch"
+            if k == "code":
+                code = v
+
+    DATA_DIR = Path("/home/admin/openclaw/workspace/stock-assistant/data")
+
+    def read_json(fname):
+        path = DATA_DIR / fname
+        if path.exists():
+            with open(path) as f:
+                return json.load(f)
+        return None
+
+    def write_json(fname, data):
+        path = DATA_DIR / fname
+        with open(path, "w") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    now = dt.datetime.now().isoformat()
+
+    # Fallback：用 data JSON 里的已有数据生成结论
+    result = None
+    if task_type == "holding":
+        data = read_json("holdings.json")
+        if data:
+            for h in data.get("holdings", []):
+                if not code or h.get("code") == code:
+                    buy_price = h.get("buy_price", 0)
+                    price = h.get("price") or buy_price
+                    profit_pct = round((price - buy_price) / buy_price * 100, 2) if buy_price else 0
+                    stop_loss = h.get("stop_loss", buy_price * 0.85)
+                    take_profit = h.get("take_profit", buy_price * 1.20)
+                    if price <= stop_loss:
+                        risk_status = "STOP_LOSS_HIT"
+                        action = "建议止损出局"
+                    elif profit_pct >= 5:
+                        risk_status = "PROFIT_GOOD"
+                        action = "持有，关注止盈"
+                    elif profit_pct >= 0:
+                        risk_status = "PROFIT"
+                        action = "持有"
+                    elif profit_pct >= -10:
+                        risk_status = "LOSS_LARGE"
+                        action = "持有，关注止损线"
+                    else:
+                        risk_status = "NEAR_STOP_LOSS"
+                        action = "密切监控"
+
+                    direction = "盈" if profit_pct >= 0 else "亏"
+                    conclusion = (
+                        h["name"] + "(" + h["code"] + ")：" +
+                        "现价¥" + str(round(price, 2)) + "，" +
+                        "浮" + direction + str(abs(profit_pct)) + "%(" +
+                        str(round((price - buy_price) * h.get("shares", 0), 0)) + "元)。" +
+                        "止损¥" + str(stop_loss) + "，止盈¥" + str(take_profit) + "。" +
+                        "风险状态：" + risk_status + "。建议：" + action + "。"
+                    )
+                    h["risk_status"] = risk_status
+                    h["latest_conclusion"] = conclusion
+                    h["suggested_action"] = action
+                    h["last_scan_at"] = now
+                    h["status"] = "scanned"
+                    write_json("holdings.json", data)
+                    result = {"code": h["code"], "conclusion": conclusion, "action": action, "risk_status": risk_status}
+                    break
+    elif task_type == "watch":
+        data = read_json("watchlist.json")
+        if data:
+            for w in data.get("items", []):
+                if not code or w.get("code") == code:
+                    conclusion = (
+                        w["name"] + "(" + w["code"] + ")：" +
+                        "买入区间" + w.get("buy_zone", "?") + "，" +
+                        "触发条件" + w.get("trigger_condition", "?") + "。" +
+                        "趋势：" + w.get("trend_status", "?") + "。" +
+                        "风险：" + w.get("risk_note", "?") + "。"
+                    )
+                    w["latest_conclusion"] = conclusion
+                    w["watch_status"] = "OBSERVING"
+                    w["last_scan_at"] = now
+                    w["status"] = "scanned"
+                    write_json("watchlist.json", data)
+                    result = {"code": w["code"], "conclusion": conclusion, "action": "观察", "risk_status": w.get("trend_status", "?")}
+                    break
+
+    if result:
+        log("execute_portfolio_scan 完成: " + json.dumps(result, ensure_ascii=False)[:150])
+    return result or {"error": "no data found"}
+
+def execute_lightweight(task_id, content):
+    """轻量任务：不产生真实结果，不进done统计"""
+    return None  # has_meaningful_result 会返回 False，skip_task
 
 # ===== P0 股票任务结果处理器 =====
 def check_and_notify_p0(task_id, task_type, result_data):
@@ -351,11 +439,12 @@ def has_meaningful_result(result_data):
     if not result_data:
         return False
     if isinstance(result_data, dict):
-        # 排除诊断类输出
+        # error dict 不是真实结果
+        if "error" in result_data and not result_data.get("conclusion"):
+            return False
         result_str = json.dumps(result_data)
         if any(kw in result_str for kw in DIAG_KEYWORDS):
             return False
-        # 排除空 dict
         if not result_data:
             return False
         return True

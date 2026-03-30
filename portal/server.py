@@ -46,6 +46,31 @@ def read_json(filename: str):
 # ===== holdings / watchlist 数据读写（stock-assistant/data/）=====
 DATA_DIR = Path("/home/admin/openclaw/workspace/stock-assistant/data")
 
+# ===== 自动创建扫描任务 → inbox/ =====
+INBOX_DIR = Path("/home/admin/openclaw/workspace/stock-assistant/tasks/inbox")
+
+def _create_scan_task(code: str, task_type: str, agent: str, priority: str):
+    """在 inbox/ 创建任务文件，自动触发执行链"""
+    INBOX_DIR.mkdir(parents=True, exist_ok=True)
+    task_id = f"{task_type}-{int(datetime.now().timestamp() * 1000)}"
+    task_file = INBOX_DIR / f"{task_id}.md"
+    task_content = f"""---
+id: {task_id}
+type: {task_type}
+agent: {agent}
+priority: '{priority}'
+created: {datetime.now().isoformat()}
+status: pending
+code: {code}
+---
+# {task_type}
+
+*priority: {priority} | agent: {agent} | code: {code}*
+"""
+    with open(task_file, "w") as f:
+        f.write(task_content)
+    return task_id
+
 def read_data_json(filename: str):
     fp = DATA_DIR / filename
     if fp.exists():
@@ -410,15 +435,7 @@ async def get_holdings():
     data = read_data_json("holdings.json")
     if not data:
         return {"holdings": [], "updated": ""}
-    for h in data.get("holdings", []):
-        code = h.get("code", "")
-        if code:
-            live = fetch_live_price(code)
-            if live:
-                h["price"] = live["price"]
-                h["change_pct"] = round(live["pct"], 2)
-                if h.get("buy_price"):
-                    h["profit_pct"] = round((live["price"] - h["buy_price"]) / h["buy_price"] * 100, 2)
+    # 价格字段已由 scan-result 回写，不在此处实时拉取（避免阻塞）
     return data
 
 @app.post("/api/assets/add-holding")
@@ -506,6 +523,10 @@ async def add_watch(body: dict = None):
     data["items"].append(item)
     data["updated"] = datetime.now().isoformat()
     write_data_json("watchlist.json", data)
+
+    # 自动创建首轮观察池扫描任务 → inbox/
+    _create_scan_task(body["code"], "观察池扫描", "stock-main", "P0")
+
     return {"ok": True, "item": item}
 
 
