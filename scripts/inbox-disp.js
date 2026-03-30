@@ -1,258 +1,226 @@
 #!/usr/bin/env node
-/**
- * inbox-disp.js - v1.3.0 真实任务补货版
- *
- * 核心职责：
- * 1. inbox 有文件 → 移动到 todo/
- * 2. inbox 空 + todo < 3 → 从真实任务模板补货到 todo >= 3
- * 3. todo > 0 → dispatch 最老任务（inline 完成 growth 类型）
- *
- * 不再生成无意义的 growth-* 任务占位。
- */
-const FS = require("fs");
-const PATH = require("path");
+'use strict';
+const FS   = require('fs');
+const PATH = require('path');
 
-const TASKS = "/home/admin/openclaw/workspace/stock-assistant/tasks";
-const INBOX_DIR  = TASKS + "/inbox";
-const TODO_DIR   = TASKS + "/todo";
-const DOING_DIR  = TASKS + "/doing";
-const DONE_DIR   = TASKS + "/done";
-const FAILED_DIR = TASKS + "/failed";
-const BLOCKED_DIR = TASKS + "/blocked";
+// ===== 路径 =====
+const DONE_DIR  = '/home/admin/openclaw/workspace/stock-assistant/tasks/done';
+const TODO_DIR  = '/home/admin/openclaw/workspace/stock-assistant/tasks/todo';
+const DOING_DIR = '/home/admin/openclaw/workspace/stock-assistant/tasks/doing';
+const INBOX_DIR = '/home/admin/openclaw/workspace/stock-assistant/tasks/inbox';
 
-const LOW_WATER = 3; // 待办最低水位
+// ===== 任务模板（严格 P0→P1→P2→P3）=====
+const TEMPLATES = [
+    // ========== P0: 股票主业务 ==========
+    // 持仓
+    { id:'持仓扫描-',        type:'持仓扫描',      agent:'stock-main', priority:'P0', minInterval:3600  },
+    { id:'持仓风险更新-',    type:'持仓风险更新',   agent:'stock-main', priority:'P0', minInterval:3600  },
+    // 观察池
+    { id:'观察池扫描-',      type:'观察池扫描',     agent:'stock-main', priority:'P0', minInterval:3600  },
+    { id:'观察池迁移-',      type:'观察池迁移',     agent:'stock-main', priority:'P0', minInterval:7200  },
+    { id:'剔除原因回填-',    type:'剔除原因回填',   agent:'stock-main', priority:'P0', minInterval:7200  },
+    // 盘前（09:00-09:30）
+    { id:'市场环境判断-',    type:'市场环境判断',   agent:'stock-main', priority:'P0', minInterval:43200 },
+    { id:'热点板块-',        type:'热点板块',        agent:'stock-main', priority:'P0', minInterval:43200 },
+    { id:'持仓重点-',        type:'持仓重点',        agent:'stock-main', priority:'P0', minInterval:43200 },
+    { id:'今日重点3股-',     type:'今日重点3股',    agent:'stock-main', priority:'P0', minInterval:43200 },
+    { id:'风险提醒-',        type:'风险提醒',        agent:'stock-main', priority:'P0', minInterval:43200 },
+    { id:'行动计划-',         type:'行动计划',        agent:'stock-main', priority:'P0', minInterval:43200 },
+    // 盘中（09:30-15:00）
+    { id:'异动监控-',        type:'异动监控',        agent:'stock-main', priority:'P0', minInterval:1800  },
+    { id:'公告变化-',        type:'公告变化',        agent:'stock-main', priority:'P0', minInterval:3600  },
+    { id:'环境切换-',        type:'环境切换',        agent:'stock-main', priority:'P0', minInterval:7200  },
+    { id:'强时效提醒-',      type:'强时效提醒',      agent:'stock-main', priority:'P0', minInterval:3600  },
+    // 盘后（15:00-16:00）
+    { id:'市场复盘-',        type:'市场复盘',        agent:'stock-main', priority:'P0', minInterval:43200 },
+    { id:'持仓复盘-',        type:'持仓复盘',        agent:'stock-main', priority:'P0', minInterval:43200 },
+    { id:'选股复盘-',        type:'选股复盘',        agent:'stock-main', priority:'P0', minInterval:43200 },
+    { id:'错误归因-',        type:'错误归因',        agent:'stock-main', priority:'P0', minInterval:43200 },
+    { id:'次日准备-',        type:'次日准备',        agent:'stock-main', priority:'P0', minInterval:43200 },
+    // 资产中心
+    { id:'holdings更新-',   type:'holdings更新',   agent:'stock-main', priority:'P0', minInterval:3600  },
+    { id:'watchlist更新-',  type:'watchlist更新',  agent:'stock-main', priority:'P0', minInterval:7200  },
+    { id:'related记录-',    type:'related记录',    agent:'stock-main', priority:'P0', minInterval:7200  },
+    { id:'recent扫描-',     type:'recent扫描',     agent:'stock-main', priority:'P0', minInterval:7200  },
 
-// ============================================================
-// 任务模板库（8类保底任务）
-// ============================================================
-const TASK_TEMPLATES = [
-    {
-        id_prefix: "sys-diag",
-        type: "diagnostic",
-        agent: "system",
-        priority: "low",
-        title: "系统诊断",
-        description: "执行诊断检查：\n1. 检查 MCP 服务器连通性（82.156.17.205:8000）\n2. 检查 inbox-cron daemon 进程状态\n3. 检查 cron daemon 是否存活\n4. 检查 portal 展示状态与真实状态一致性\n5. 输出诊断结果到 logs/diagnostic-YYYYMMDD.log"
-    },
-    {
-        id_prefix: "sys-cleanup",
-        type: "cleanup",
-        agent: "system",
-        priority: "low",
-        title: "清理任务",
-        description: "执行清理：\n1. 统计 tasks/done/ 文件数量\n2. 清理 tasks/done/ 下超过7天的 .md 文件\n3. 清理 tasks/failed/ 下的孤立的 .failed 文件\n4. 检查并清理 tasks/doing/ 下超过2小时的 .running 文件\n5. 记录清理结果"
-    },
-    {
-        id_prefix: "sys-consistency",
-        type: "consistency_check",
-        agent: "system",
-        priority: "low",
-        title: "真值层一致性检查",
-        description: "执行真值层一致性检查：\n1. 对比 tasks/todo/ 文件数与 tasks.json 的 todo 计数\n2. 对比 tasks/doing/ 文件数与 tasks.json 的 doing 计数\n3. 对比 tasks/done/ 文件数与 tasks.json 的 done 计数\n4. 检查 .running 文件是否与 doing 文件一一对应\n5. 检查 snapshot 文件是否与 tasks 目录同步\n6. 输出差异报告"
-    },
-    {
-        id_prefix: "sys-blocked",
-        type: "blocked_review",
-        agent: "system",
-        priority: "medium",
-        title: "blocked 任务复查",
-        description: "复查 blocked 目录：\n1. 列出 tasks/blocked/ 所有任务\n2. 检查每个 blocked 任务是否仍处于 blocked 状态\n3. 尝试重新激活可以恢复的任务到 todo/\n4. 更新 blocked 记录，标注原因和时间\n5. 输出复查结果"
-    },
-    {
-        id_prefix: "sys-docs",
-        type: "docs_review",
-        agent: "system",
-        priority: "low",
-        title: "docs 现状差异扫描",
-        description: "扫描 docs 目录与实际实现差异：\n1. 对比 docs/ 下的架构文档与实际目录结构\n2. 检查 scripts/ 下的脚本是否有对应的说明文档\n3. 检查 changelog 是否与最近 git log 一致\n4. 列出需要更新的文档清单\n5. 更新 docs/changelog/project-change-log.md（如有必要）"
-    },
-    {
-        id_prefix: "sys-heartbeat",
-        type: "heartbeat_review",
-        agent: "system",
-        priority: "medium",
-        title: "heartbeat / cron 健康复查",
-        description: "heartbeat 和 cron 健康检查：\n1. 检查 /tmp/inbox-cron.log 最近5行是否有错误\n2. 检查 cron daemon 进程是否存在\n3. 检查 openclaw-gateway 进程是否存活\n4. 检查 HEARTBEAT.md 约定的各项检查是否正常\n5. 检查 snapshot-refresh cron job 是否正常触发\n6. 输出健康报告"
-    },
-    {
-        id_prefix: "sys-portal",
-        type: "portal_review",
-        agent: "system",
-        priority: "low",
-        title: "门户展示一致性复查",
-        description: "portal 展示与真实状态一致性检查：\n1. 读取 tasks.json 的 todo/doing/done 计数\n2. 统计 tasks/todo/、tasks/doing/、tasks/done/ 实际文件数\n3. 对比差异，如有差异则更新 tasks.json\n4. 检查 portal/status/system.json 是否存在且有效\n5. 检查 portal 页面是否可访问（curl localhost:8081）"
-    },
-    {
-        id_prefix: "sys-failed",
-        type: "failed_review",
-        agent: "system",
-        priority: "medium",
-        title: "失败样本整理",
-        description: "整理失败任务样本：\n1. 列出 tasks/failed/ 下所有失败任务\n2. 统计失败类型分布（网络/权限/语法/超时）\n3. 分析每个失败原因\n4. 对于可重试的任务，尝试重新派发\n5. 对于重复失败的任务，移动到 archive/\n6. 输出失败分析报告"
-    }
+    // ========== P1: 股票系统成长 ==========
+    { id:'skill调研-',       type:'skill调研',       agent:'stock-main', priority:'P1', minInterval:86400 },
+    { id:'workflow优化-',   type:'workflow优化',    agent:'stock-main', priority:'P1', minInterval:86400 },
+    { id:'失败样本沉淀-',   type:'失败样本沉淀',     agent:'stock-main', priority:'P1', minInterval:21600 },
+    { id:'规则提炼-',        type:'规则提炼',        agent:'stock-main', priority:'P1', minInterval:86400 },
+    { id:'MEMORY检查-',     type:'MEMORY检查',      agent:'stock-main', priority:'P1', minInterval:86400 },
+    { id:'股票规律沉淀-',   type:'股票规律沉淀',     agent:'stock-main', priority:'P1', minInterval:86400 },
+    { id:'市场模式沉淀-',   type:'市场模式沉淀',     agent:'stock-main', priority:'P1', minInterval:86400 },
+    { id:'通知规则优化-',   type:'通知规则优化',     agent:'stock-main', priority:'P1', minInterval:86400 },
+
+    // ========== P2: 门户站优化 ==========
+    { id:'asset-center优化-',   type:'asset-center优化',  agent:'stock-main', priority:'P2', minInterval:86400 },
+    { id:'状态页中文化-',       type:'状态页中文化',       agent:'stock-main', priority:'P2', minInterval:86400 },
+    { id:'详情预览统一-',       type:'详情预览统一',       agent:'stock-main', priority:'P2', minInterval:86400 },
+    { id:'局部刷新优化-',       type:'局部刷新优化',       agent:'stock-main', priority:'P2', minInterval:86400 },
+    { id:'资产观察池一致性-',   type:'资产观察池一致性',   agent:'stock-main', priority:'P2', minInterval:86400 },
+    { id:'高价值产出过滤-',     type:'高价值产出过滤',     agent:'stock-main', priority:'P2', minInterval:86400 },
+
+    // ========== P3: 最低兜底 ==========
+    { id:'sys-diag-',        type:'diagnostic',  agent:'system', priority:'P3', minInterval:7200  },
+    { id:'sys-consistency-', type:'consistency', agent:'system', priority:'P3', minInterval:7200  },
+    { id:'脏任务归档-',      type:'脏任务归档',   agent:'system', priority:'P3', minInterval:14400 },
+    { id:'异常日志整理-',    type:'异常日志整理', agent:'system', priority:'P3', minInterval:14400 },
 ];
 
-/**
- * 从模板生成真实任务文件，写入 todo/
- */
-function generateFromTemplate(template) {
-    const ts = Date.now();
-    const id = template.id_prefix + "-" + ts;
-    const lines = [
-        "---",
-        "type: " + template.type,
-        "agent: " + template.agent,
-        "status: pending",
-        "priority: " + template.priority,
-        "id: " + id,
-        "created: " + new Date().toISOString(),
-        "来源: idle_replenish",
-        "title: " + template.title,
-        "---",
-        "",
-        "## 任务描述",
-        template.description
-    ];
-    const filePath = TODO_DIR + "/" + id + ".md";
-    FS.writeFileSync(filePath, lines.join("\n"));
-    return id;
+// ===== 工具 =====
+function nowTs()    { return Date.now(); }
+function getDateStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-/**
- * 补充任务到最低水位
- */
-function replenishToWaterLevel() {
-    const existing = FS.readdirSync(TODO_DIR).filter(f => f.endsWith(".md"));
-    const count = existing.length;
-    if (count >= LOW_WATER) {
-        return 0; // 水位已满足
+function recentDoneCount(taskPrefix, intervalSec) {
+    if (!FS.existsSync(DONE_DIR)) return 0;
+    const cutoff = nowTs() - intervalSec * 1000;
+    return FS.readdirSync(DONE_DIR)
+        .filter(f => f.startsWith(taskPrefix) && f.endsWith('.md'))
+        .filter(f => FS.statSync(PATH.join(DONE_DIR, f)).mtimeMs > cutoff)
+        .length;
+}
+
+function countByPriority(dir) {
+    const c = { P0:0, P1:0, P2:0, P3:0, total:0 };
+    if (!FS.existsSync(dir)) return c;
+    for (const f of FS.readdirSync(dir)) {
+        if (!f.endsWith('.md')) continue;
+        const m = FS.readFileSync(PATH.join(dir, f), 'utf8').match(/priority:\s*'(P[0-3])'/);
+        const p = m ? m[1] : 'P3';
+        if (p in c) c[p]++;
+        c.total++;
+    }
+    return c;
+}
+
+function mkdir(dir) { FS.mkdirSync(dir, {recursive:true}); }
+
+// ===== 写任务文件 =====
+function writeTask(tpl, taskId) {
+    mkdir(TODO_DIR);
+    const fp = PATH.join(TODO_DIR, taskId + '.md');
+    FS.writeFileSync(fp, `---
+id: ${taskId}
+type: ${tpl.type}
+agent: ${tpl.agent}
+priority: '${tpl.priority}'
+created: ${new Date().toISOString()}
+status: pending
+---
+# ${tpl.type}
+
+*priority: ${tpl.priority} | agent: ${tpl.agent}*
+`);
+    return fp;
+}
+
+// ===== 选择最优先模板（严格 P0→P1→P2→P3）=====
+function selectTemplate() {
+    const counts = countByPriority(TODO_DIR);
+    const hour   = new Date().getHours();
+    const minute = new Date().getMinutes();
+
+    // === 规则1: P0 永远维持至少 2 个 ===
+    if (counts.P0 < 2) {
+        // P0=0 时极度饥饿：忽略 minInterval，直接找任意 P0 模板
+        const p0Templates = TEMPLATES.filter(t => t.priority === 'P0');
+        if (counts.P0 === 0) {
+            // 找任意 P0（不管 minInterval）
+            const candidates = [
+                p0Templates.find(t => t.id === '持仓扫描-'),
+                p0Templates.find(t => t.id === '观察池扫描-'),
+                p0Templates.find(t => t.id === '异动监控-'),
+                p0Templates.find(t => t.id === '持仓风险更新-'),
+            ].filter(Boolean);
+            for (const tpl of candidates) return tpl;
+            // 兜底：任意 P0
+            for (const tpl of p0Templates) return tpl;
+        }
+        // P0=1：尝试找新的 P0（minInterval 约束）
+        if (hour === 9 && minute < 30) {
+            const tpl = p0Templates.find(t => t.id === '市场环境判断-');
+            if (tpl && recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
+        }
+        if (hour >= 9 && hour < 15) {
+            const tpl = p0Templates.find(t => t.id === '异动监控-');
+            if (tpl && recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
+        }
+        if (hour >= 15 && hour < 16) {
+            const tpl = p0Templates.find(t => t.id === '市场复盘-');
+            if (tpl && recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
+        }
+        const candidates = [
+            p0Templates.find(t => t.id === '持仓扫描-'),
+            p0Templates.find(t => t.id === '观察池扫描-'),
+            p0Templates.find(t => t.id === '持仓风险更新-'),
+        ].filter(Boolean);
+        for (const tpl of candidates) {
+            if (recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
+        }
+        // 兜底：任意 minInterval 已过的 P0
+        for (const tpl of p0Templates) {
+            if (recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
+        }
+        // 如果找不到可补的 P0，先补 P1（不做 P0 饿死时的硬阻塞）
     }
 
-    // 每次轮换选一个不同的模板（按模板索引轮询）
-    replenishToWaterLevel._counter = replenishToWaterLevel._counter || 0;
-    const need = LOW_WATER - count;
-    const added = [];
-
-    for (let i = 0; i < need; i++) {
-        const idx = (replenishToWaterLevel._counter + i) % TASK_TEMPLATES.length;
-        const tid = generateFromTemplate(TASK_TEMPLATES[idx]);
-        added.push(tid);
+    // === 规则2: P0 ≥ 2，但 todo 总数 < 3 → 补 P1/P2 ===
+    if (counts.total < 3) {
+        for (const pri of ['P1', 'P2']) {
+            for (const tpl of TEMPLATES.filter(t => t.priority === pri)) {
+                if (recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
+            }
+        }
     }
-    replenishToWaterLevel._counter = (replenishToWaterLevel._counter + need) % TASK_TEMPLATES.length;
-    return added.length;
-}
 
-// ============================================================
-// 核心逻辑
-// ============================================================
-function makeResult(action, extra) {
-    return JSON.stringify(Object.assign({action, timestamp: new Date().toISOString()}, extra || {}));
-}
-
-function claimTask(taskId) {
-    // 移动 .md 文件到 doing/
-    const src = TODO_DIR + "/" + taskId + ".md";
-    const dst = DOING_DIR + "/" + taskId + ".md";
-    if (FS.existsSync(src)) {
-        FS.renameSync(src, dst);
+    // === 规则3: P0 ≥ 2 且 P1/P2 已满，才允许 P3 ===
+    if (counts.P0 >= 2 && counts.total < 3) {
+        for (const tpl of TEMPLATES.filter(t => t.priority === 'P3')) {
+            if (recentDoneCount(tpl.id, tpl.minInterval) === 0) return tpl;
+        }
     }
-    // 创建 .running 标记
-    FS.writeFileSync(DOING_DIR + "/" + taskId + ".running", String(Date.now()));
+
+    return null; // 充分条件未满足，不补货
 }
 
-function completeTask(taskId, taskType) {
-    const src = DOING_DIR + "/" + taskId + ".md";
-    const dst = DONE_DIR + "/" + taskId + ".md";
-    if (FS.existsSync(src)) {
-        FS.renameSync(src, dst);
-    } else {
-        // inline complete（没文件也要写入 done）
-        const lines = [
-            "---",
-            "type: " + taskType,
-            "agent: system",
-            "status: done",
-            "id: " + taskId,
-            "completed: " + new Date().toISOString(),
-            "---"
-        ];
-        FS.writeFileSync(dst, lines.join("\n"));
-    }
-    // 删除 .running
-    try { FS.unlinkSync(DOING_DIR + "/" + taskId + ".running"); } catch(e) {}
-}
+// ===== 核心调度 =====
+function check_and_dispatch() {
+    mkdir(TODO_DIR);
+    mkdir(DOING_DIR);
+    mkdir(INBOX_DIR);
 
-function processInbox() {
-    if (!FS.existsSync(INBOX_DIR)) FS.mkdirSync(INBOX_DIR, {recursive: true});
-    if (!FS.existsSync(TODO_DIR))  FS.mkdirSync(TODO_DIR,  {recursive: true});
-    if (!FS.existsSync(DOING_DIR)) FS.mkdirSync(DOING_DIR, {recursive: true});
-    if (!FS.existsSync(DONE_DIR))  FS.mkdirSync(DONE_DIR,  {recursive: true});
-
-    const files = FS.readdirSync(INBOX_DIR).filter(f => f.endsWith(".md"));
-    let processed = 0;
-    for (const file of files) {
-        const src = INBOX_DIR + "/" + file;
-        const id = file.replace(".md", "");
-        const dst = TODO_DIR + "/" + file;
-        if (!FS.existsSync(dst)) {
+    // 优先：dispatch 一个已有 todo → doing
+    const todoFiles = FS.readdirSync(TODO_DIR).filter(f => f.endsWith('.md')).sort();
+    if (todoFiles.length > 0) {
+        const taskFile = todoFiles[0];
+        const taskId   = taskFile.replace('.md','');
+        const src = PATH.join(TODO_DIR, taskFile);
+        const dst = PATH.join(DOING_DIR, taskFile);
+        try {
             FS.renameSync(src, dst);
-            processed++;
-        }
-    }
-    return processed;
-}
-
-function main() {
-    processInbox(); // 处理 inbox 文件
-
-    const tasks = FS.readdirSync(TODO_DIR).filter(f => f.endsWith(".md"));
-
-    // 主循环：补满水位，然后 dispatch 直到水位达标
-    // 每次调用尽量让 todo 达到 LOW_WATER
-    let added = 0;
-    while (true) {
-        const current = FS.readdirSync(TODO_DIR).filter(f => f.endsWith(".md")).length;
-        if (current < LOW_WATER) {
-            const newCount = replenishToWaterLevel();
-            if (newCount === 0) break; // 没有更多模板
-            added += newCount;
-        } else {
-            break;
+            FS.writeFileSync(PATH.join(DOING_DIR, taskId + '.running'), String(nowTs()));
+            return { action:'dispatched', taskId, dispatchedBy:'inbox-disp' };
+        } catch(e) {
+            return { action:'error', error: e.message };
         }
     }
 
-    // 现在 todo >= LOW_WATER，dispatch 直到低于水位
-    const dispatchees = [];
-    while (true) {
-        const remaining = FS.readdirSync(TODO_DIR).filter(f => f.endsWith(".md"));
-        if (remaining.length <= LOW_WATER - 1) break; // 保持 todo >= LOW_WATER
+    // 次优：todo 为空或 P0 不足 → replenish
+    // 注意：P0<2 时即使 total>=3 也要补（P0 永远优先）
+    const counts = countByPriority(TODO_DIR);
+    const tpl = selectTemplate();
+    if (!tpl) return { action:'idle', reason:'no_candidate', counts };
 
-        remaining.sort();
-        const taskFile = remaining[0];
-        const taskId = taskFile.replace(".md", "");
-        claimTask(taskId);
-
-        const content = FS.readFileSync(DOING_DIR + "/" + taskId + ".md", "utf8");
-        const typeMatch = content.match(/^type:\s*(.+)$/m);
-        const taskType = typeMatch ? typeMatch[1].trim() : "unknown";
-
-        // growth/diagnostic/cleanup inline 完成，其他类型保留 doing
-        // 所有任务都只 dispatch 到 doing，不做 inline complete
-        // 真实执行由 task_executor.py 处理
-        dispatchees.push({taskId, taskType});
-    }
-
-    if (dispatchees.length > 0) {
-        const last = dispatchees[dispatchees.length - 1];
-        return makeResult("dispatched", {
-            taskId: last.taskId,
-            agent: "system",
-            taskType: last.taskType,
-            dispatchedCount: dispatchees.length,
-            message: `批量派发${dispatchees.length}个任务，最后执行: ${last.taskId} (${last.taskType})`
-        });
-    }
-    return makeResult("idle");
+    const taskId = tpl.id + nowTs();
+    writeTask(tpl, taskId);
+    return { action:'replenished', taskId, type:tpl.type, priority:tpl.priority, counts };
 }
 
-process.stdout.write(main());
+// ===== 直接运行 =====
+const result = check_and_dispatch();
+console.log(JSON.stringify(result));
+process.exit(0);

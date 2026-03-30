@@ -30,13 +30,13 @@ python3 /home/admin/openclaw/workspace/stock-assistant/scripts/process_inbox.py
 for i in 1 2 3; do python3 /home/admin/openclaw/workspace/scripts/task_executor.py; done
 ```
 - 先查 Token，Token=0 则静默停摆
-- process_inbox.py：inbox 空时从 8 类保底模板补货到 todo≥3，dispatch 到 doing
+- process_inbox.py：inbox 空时由 inbox-disp.js 按 P0→P1→P2→P3 严格优先级补货（P0维持≥2个）
 - task_executor.py：从 doing 取任务执行，写真实结果到 done/
 
 **内部任务池永远不会空**，因为：
-- 初始11个任务（系统维护/诊断/清理）
-- 每轮自动补充新任务（日报/git/cron等轮询任务）
-- failed 的任务自动重置重试
+- inbox-disp.js 按 P0→P1→P2→P3 严格优先级自动补充
+- P0 任务：23个模板（持仓扫描、观察池、异动、盘前/盘后等）
+- 每轮 heartbeat 自动补充，保持 todo 水位
 
 **注意**：系统无 cron daemon，daemon 仅作备用。主力是每次 heartbeat 批量执行5个任务。
 
