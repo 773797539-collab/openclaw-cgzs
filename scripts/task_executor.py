@@ -69,8 +69,8 @@ def dispatch_one():
         task_id = j.get("taskId","")
         reason  = j.get("reason","")
         if action == "idle":
-            log(f"inbox-disp: idle ({reason})")
-            return None  # 全部冷却中，不计入批次
+            # 全部冷却中，不计入批次，让外层循环进入休眠
+            return None
         log(f"inbox-disp: {action} {task_id}")
         return task_id if action in ("dispatched","replenished") else None
     except:
