@@ -20,7 +20,8 @@ NODE_BIN      = "/home/admin/.nvm/versions/node/v24.14.0/bin/node"
 # ===== 运行参数 =====
 MAX_BATCH     = 1000   # 每轮最大批量（保护 token，1000=近似无限）
 TOKEN_STOP    = 0.20   # token 剩余 ≤20% 时停止
-LOOP_SLEEP    = 1      # 每轮循环间隙（秒），doing空时等待
+LOOP_SLEEP      = 1      # 每轮循环间隙（秒）
+CORE_IDLE_SLEEP = 180    # inbox-disp idle 时休眠（秒），等待冷却到期
 TODO_WATER    = 3      # todo 水位（低于此值立即补货）
 
 # ===== Token 检查 =====
@@ -66,6 +67,10 @@ def dispatch_one():
         j = json.loads(r.stdout)
         action = j.get("action","")
         task_id = j.get("taskId","")
+        reason  = j.get("reason","")
+        if action == "idle":
+            log(f"inbox-disp: idle ({reason})")
+            return None  # 全部冷却中，不计入批次
         log(f"inbox-disp: {action} {task_id}")
         return task_id if action in ("dispatched","replenished") else None
     except:
@@ -73,59 +78,15 @@ def dispatch_one():
         return None
 
 # ===== 任务处理器 =====
+# ===== 主执行链白名单（只有这些任务才会被处理）=====
 TASK_HANDLERS = {
-    # === P0 股票业务 → 真实处理器 ===
-    "持仓扫描":     "execute_portfolio_scan",
-    "持仓风险更新": "execute_portfolio_scan",
-    "观察池扫描":   "execute_portfolio_scan",
+    "持仓扫描":      "execute_portfolio_scan",
+    "持仓风险更新":  "execute_portfolio_scan",
+    "观察池扫描":    "execute_portfolio_scan",
     "holdings更新": "execute_portfolio_scan",
-    "watchlist更新":"execute_portfolio_scan",
-    "recent扫描":  "execute_portfolio_scan",
-    # === P0 运维类 → 轻量处理 ===
-    "市场环境判断": "execute_lightweight",
-    "热点板块":     "execute_lightweight",
-    "持仓重点":     "execute_lightweight",
-    "今日重点3股": "execute_lightweight",
-    "风险提醒":     "execute_lightweight",
-    "行动计划":     "execute_lightweight",
-    "异动监控":     "execute_lightweight",
-    "公告变化":     "execute_lightweight",
-    "环境切换":     "execute_lightweight",
-    "强时效提醒":   "execute_lightweight",
-    "市场复盘":     "execute_lightweight",
-    "持仓复盘":     "execute_lightweight",
-    "选股复盘":     "execute_lightweight",
-    "错误归因":     "execute_lightweight",
-    "次日准备":     "execute_lightweight",
-    "观察池迁移":   "execute_lightweight",
-    "剔除原因回填": "execute_lightweight",
-    "related记录": "execute_lightweight",
-    # === P1 ===
-    "skill调研":     "execute_lightweight",
-    "workflow优化": "execute_lightweight",
-    "失败样本沉淀": "execute_lightweight",
-    "规则提炼":     "execute_lightweight",
-    "MEMORY检查":   "execute_lightweight",
-    "股票规律沉淀": "execute_lightweight",
-    "市场模式沉淀": "execute_lightweight",
-    "通知规则优化": "execute_lightweight",
-    # === P2 ===
-    "asset-center优化": "execute_lightweight",
-    "状态页中文化":   "execute_lightweight",
-    "详情预览统一":   "execute_lightweight",
-    "局部刷新优化":   "execute_lightweight",
-    "资产观察池一致性": "execute_lightweight",
-    "高价值产出过滤": "execute_lightweight",
-    # === P3 / 运维 ===
-    "diagnostic":    "execute_lightweight",
-    "consistency":   "execute_lightweight",
-    "脏任务归档":    "execute_lightweight",
-    "异常日志整理":  "execute_lightweight",
-    "cleanup":       "execute_cleanup",
-    "blocked_review":"execute_blocked_review",
-    "failed_review": "execute_failed_review",
-    "repo_health":   "execute_lightweight",
+    "watchlist更新": "execute_portfolio_scan",
 }
+# 不在白名单内的任务类型 → 完全跳过（不进done，不报错）
 
 def execute_diagnostic(task_id, content):
     return {}  # 空结果，不进done
@@ -482,11 +443,11 @@ def run_batch():
         # 2. 找 doing 中最老任务
         files = [f for f in os.listdir(DOING_DIR) if f.endswith(".md")]
         if not files:
-            # doing 空：立即调用 inbox-disp 补货+派发
-            dispatched = dispatch_one()
-            if not dispatched:
-                # 无可执行任务，等待 LOOP_SLEEP 秒后重试
-                time.sleep(LOOP_SLEEP)
+            # doing 空：调用 inbox-disp 补货+派发
+            idle_reason = dispatch_one()
+            if idle_reason is None:
+                # inbox-disp idle（全部冷却中）：休眠 CORE_IDLE_SLEEP 秒
+                time.sleep(CORE_IDLE_SLEEP)
                 continue
             # inbox-disp 已派发，doing 已有任务，继续执行
             files = [f for f in os.listdir(DOING_DIR) if f.endswith(".md")]
@@ -517,6 +478,15 @@ def run_batch():
             handler = globals().get(handler_name)
             if handler:
                 result_data = handler(task_id, content)
+        else:
+            # 不在白名单 → 静默废弃（不写任何日志，不进done/todo）
+            try:
+                os.remove(doing_file)
+                if os.path.exists(running_file):
+                    os.remove(running_file)
+            except:
+                pass
+            continue  # 跳过，不计入 batch_count
 
         # 判断：有真实结果才进 done，否则跳过
         if has_meaningful_result(result_data):
