@@ -419,3 +419,23 @@
 - `process_inbox.py` 清理重复注释，修复 STOCK_MAIN_SESSION 错误值
 - `heartbeat_token_guard.py` 新建（Token检查守卫，API失败时静默停摆）
 - HEARTBEAT.md 集成 token_guard 检查流程
+
+## 2026-03-30 - 多源数据获取 + 自驱闭环修复
+
+### 修复内容
+- **多源数据获取**：新增 `market_data_robust.py`，优先级：MCP(主) → 腾讯财经(备用) → akshare(备用) → 缓存
+  - MCP 82.156.17.205 暂时不可用（超时）
+  - 腾讯财经 API `https://qt.gtimg.cn/q=sh605365` 稳定可用
+- **自驱闭环 idle 分支**：`inbox-disp.js` idle 时生成 3 个 growth 任务（diagnostic/cleanup/repo_health），通过 HEARTBEAT process_inbox 链路持续执行
+- **inbox-cron.sh 始终调用**：修复 while 循环内只在 inbox 有文件时才调 inbox-disp.js 的问题，确保 idle 分支也能被执行
+- **cron job 修复**：`inbox-to-stock-main` payload.kind 从 agentTurn 改为 systemEvent
+
+### 技术细节
+- 腾讯财经解析：`v_sh605365="1~立达信~605365~18.16~18.35~..."` 按 `~` 分割，第4字段为价格
+- inbox-cron daemon 因 cron daemon 死亡而无法被 crontab 唤醒，但 HEARTBEAT 链路正常
+- growth 任务已消费 done=23，系统自驱循环正常
+
+### Git 提交
+- `0ed5235` feat: 添加腾讯财经API作为实时价格源（备用2）
+- `42c721b` feat: 多源市场数据获取器（MCP主+akshare备+缓存）
+- `aa1f9a0` fix: inbox自驱闭环修复（idle生成+inline完成+inbox-cron始终调用）
