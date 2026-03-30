@@ -82,9 +82,12 @@ fi
 
 # ===== inbox-disp.js 派发 =====
 INBOX_DISP="$SCRIPT_DIR/../scripts/inbox-disp.js"
-if [ -x "$(command -v node)" ] && [ -f "$INBOX_DISP" ]; then
-    result=$(node "$INBOX_DISP" 2>/dev/null)
+NODE_BIN="${NODE_BIN:-/home/admin/.nvm/versions/node/v24.14.0/bin/node}"
+if [ -x "$NODE_BIN" ] && [ -f "$INBOX_DISP" ]; then
+    result=$("$NODE_BIN" "$INBOX_DISP" 2>/dev/null)
     log "inbox-disp: ${result:-empty}"
+else
+    log "inbox-disp: skipped (node=$NODE_BIN disp=$INBOX_DISP)"
 fi
 
 log "完成: processed=$processed failed=$failed duplicates=$duplicates"
