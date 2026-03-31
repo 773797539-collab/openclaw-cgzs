@@ -55,7 +55,7 @@ pkill -f "python3.*portal"; sleep 1; cd /home/admin/openclaw/workspace/portal &&
 ## 标准检查（按优先级）
 
 1. **Token 状态** - 先查，0则静默停摆
-2. **内部任务池** - task_executor 批循环执行（不等待定时器）
+2. **task_executor daemon** - 每 heartbeat 检查是否存活（daemon统一运行，heartbeat不调用）
 3. **Portal 运行状态** - 每 heartbeat 检查
 4. **Git 提交** - 每 heartbeat 有事实产出
 
