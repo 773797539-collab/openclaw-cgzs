@@ -110,3 +110,16 @@ Git：8953b78（最新commit）
 - execute_diagnostic → {} → 不进done
 - execute_lightweight → None → 不进done
 - execute_portfolio_scan → 真实结论dict → 进done
+
+## daemon 存活检查（替代旧的任务执行逻辑）
+
+```python
+# 检查 task_executor daemon 是否存活
+import subprocess
+r = subprocess.run(['pgrep', '-f', 'task_executor.py'], capture_output=True)
+if r.returncode != 0:
+    # daemon 死了，拉起
+    subprocess.Popen(['nohup', 'bash', '-c', 
+        'while true; do python3 /home/admin/openclaw/workspace/scripts/task_executor.py; sleep 10; done'],
+        stdout=open('/tmp/task-executor.log','a'), stderr=subprocess.STDOUT)
+```
