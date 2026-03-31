@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // snapshot.js - 任务看板快照生成器（v2）
-// 读取 tasks/{todo,doing,done,blocked,approval}/ 目录树
+// 读取 tasks/{todo,doing,blocked,approval}/ 目录树（done 不计入：历史归档，持续增长）
 // 解析 YAML frontmatter，提取关键字段，写入 tasks.json
 // 不再写入原始 content 字段
 
@@ -52,13 +52,14 @@ function generate() {
     const snap = {
         todo: scanDir(`${TASKS}/todo`),
         doing: scanDir(`${TASKS}/doing`),
-        done: scanDir(`${TASKS}/done`),
+        // done 历史归档（持续累积，不计入实时看板）
+        done: 0,
         blocked: scanDir(`${TASKS}/blocked`),
         approval: scanDir(`${TASKS}/approval`),
         lastUpdated: new Date().toISOString()
     };
     FS.writeFileSync(PORTAL_TASKS, JSON.stringify(snap, null, 2));
-    console.error(`[snapshot] generated: todo=${snap.todo.length} doing=${snap.doing.length} done=${snap.done.length} lastUpdated=${snap.lastUpdated}`);
+    console.error(`[snapshot] generated: todo=${snap.todo.length} doing=${snap.doing.length} done=N/A(lastUpdated=${snap.lastUpdated})`);
     return snap;
 }
 
